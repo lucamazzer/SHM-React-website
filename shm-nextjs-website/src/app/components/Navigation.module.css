@@ -1,13 +1,16 @@
 .header {
     border: 1px solid red;
     border-radius: 4px;
-    padding: 4px
+    padding: 4px;
+    display: flex;
+    flex-direction: row;
 }
 
 .navigation {
     display: flex;
     list-style: none;
     gap: 32px;
+    flex-direction: row;
 }
 
 .navigation a:hover {

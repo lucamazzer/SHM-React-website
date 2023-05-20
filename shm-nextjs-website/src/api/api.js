@@ -1,11 +1,10 @@
 import { create } from 'apisauce';
-import { CHANNELS } from 'shared/constants/common';
 
 export const DEFAULT_RETRIES = 2;
 export const CONFIG_TIMEOUT = 40000;
-
+export const API_URL = 'localhost:3001/';
 const api = create({
-  baseURL: 'localhost:3000',
+  baseURL: API_URL,
   timeout: 30000
 });
 
