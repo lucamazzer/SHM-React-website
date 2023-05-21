@@ -1,17 +1,18 @@
-import Link from "next/link"
+import Link from 'next/link'
+
 import styles from './Navigation.module.css'
 const links = [
-    { route: '/', label: 'Home' },
-    { route: '/Information', label: 'Information' },
-    { route: '/Messures', label: 'messures' },
-    { route: '/Files', label: 'Files' },
-    { route: '/Graphics', label: 'Graphics' },
-    { route: '/Configuration', label: 'Configuration' },
-    { route: '/about', label: 'About' },
-  ]
-  
+  { route: '/', label: 'Home' },
+  { route: '/Information', label: 'Information' },
+  { route: '/Messures', label: 'messures' },
+  { route: '/Files', label: 'Files' },
+  { route: '/Graphics', label: 'Graphics' },
+  { route: '/Configuration', label: 'Configuration' },
+  { route: '/about', label: 'About' }
+]
+
 export default function Navigation () {
-    return (
+  return (
       <header className={styles.header}>
         <nav className={styles.Navigation}>
          <ul>
@@ -25,6 +26,6 @@ export default function Navigation () {
           </ul>
         </nav>
       </header>
-   
-    )
+
+  )
 }

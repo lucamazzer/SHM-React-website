@@ -1,11 +1,19 @@
-import { create } from 'apisauce';
 
-export const DEFAULT_RETRIES = 2;
-export const CONFIG_TIMEOUT = 40000;
-export const API_URL = 'localhost:3001/';
-const api = create({
+import axios from 'axios'
+export const DEFAULT_RETRIES = 2
+export const CONFIG_TIMEOUT = 40000
+export const API_URL = 'http://localhost:3001/' // 'http://backend.shm.com:3001/';
+
+const apiConfig = {
   baseURL: API_URL,
-  timeout: 30000
-});
+  timeout: CONFIG_TIMEOUT,
+  headers: {
+    Authorisation: '',
+    'X-Requested-With': 'XMLHttpRequest',
+    'Content-Type': 'application/json'
+  }
+}
 
-export default api;
+const api = axios.create(apiConfig)
+
+export default api
