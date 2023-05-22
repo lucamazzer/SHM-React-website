@@ -11,12 +11,12 @@ const DenseTable = ({ data, headersMapper }) => {
   if (!data || data.length === 0) return (<div>No data</div>)
   const header = Object.keys(data[0])
   return (
-    <TableContainer component={Paper} className='bg-white-500'>
-      <Table sx={{ minWidth: 650 }} size="small" aria-label="a dense table" className='bg-white'>
+    <TableContainer component={Paper} className='!bg-black-500'>
+      <Table sx={{ minWidth: 650 }} size="small" aria-label="a dense table" className='!bg-black'>
         <TableHead>
           <TableRow>
             {header.map((head) => (
-                <TableCell key={head} className='text-white'>{headersMapper ? headersMapper[head] : head}</TableCell>
+                <TableCell key={head} className='!text-white'>{headersMapper ? headersMapper[head] : head}</TableCell>
             ))}
           </TableRow>
         </TableHead>
@@ -30,7 +30,7 @@ const DenseTable = ({ data, headersMapper }) => {
               sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
             >
              {keys.map((key) => (
-                <TableCell className='text-white' key={`${row.id}_${key}`}>{row[`${key}`]}</TableCell>
+                <TableCell className='!text-white' key={`${row.id}_${key}`}>{row[`${key}`]}</TableCell>
              ))}
             </TableRow>
             )

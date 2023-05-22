@@ -29,8 +29,7 @@ export default function InfoPage () {
     <div className='pb-5'>
       <h1>Estado de nodos</h1>
       <div className='m-5'>
-      <DenseTable data={data.data} headersMapper={headersMapper} />
-
+         <DenseTable data={data.data} headersMapper={headersMapper} />
       </div>
     </div>
   )
