@@ -1,42 +1,38 @@
-import { useState } from 'react'
+import { useState } from 'react';
 
-const useAsyncState = (
-  defaultValue,
-  asyncRequest,
-  config
-) => {
-  const { failureCallback, onChange } = config || {}
+const useAsyncState = (defaultValue, asyncRequest, config) => {
+  const { failureCallback, onChange } = config || {};
 
-  const [inProgress, setInProgress] = useState(false)
-  const [error, setError] = useState(null)
-  const [data, setData] = useState(defaultValue)
+  const [inProgress, setInProgress] = useState(false);
+  const [error, setError] = useState(null);
+  const [data, setData] = useState(defaultValue);
 
   const refresh = asyncRequest
     ? (...params) => {
-        setInProgress(true)
+        setInProgress(true);
         asyncRequest(...params)
-          .then((newData) => {
-            setData(newData)
-            onChange?.(newData)
-            setInProgress(false)
+          .then(newData => {
+            setData(newData);
+            onChange?.(newData);
+            setInProgress(false);
           })
-          .catch((newError) => {
-            setError(newError)
-            failureCallback?.(newError)
+          .catch(newError => {
+            setError(newError);
+            failureCallback?.(newError);
           })
           .finally(() => {
-            setInProgress(false)
-          })
+            setInProgress(false);
+          });
       }
-    : () => {}
+    : () => {};
 
   return {
     refresh,
     data,
     inProgress,
     error,
-    overrideState: setData
-  }
-}
+    overrideState: setData,
+  };
+};
 
-export default useAsyncState
+export default useAsyncState;

@@ -1,5 +1,5 @@
 module.exports = {
-  extends: ['next', 'prettier', 'standard'],
+  extends: ['next', 'prettier', 'standard', 'plugin:prettier/recommended'],
   rules: {
     '@next/next/no-html-link-for-pages': 'off',
     'unused-imports/no-unused-imports': 'error',
@@ -19,16 +19,17 @@ module.exports = {
           // Other relative imports. Put same-folder imports and `.` last.
           ['^\\./(?=.*/)(?!/?$)', '^\\.(?!/?$)', '^\\./?$'],
           // Style imports.
-          ['^.+\\.?(css)$']
-        ]
-      }
+          ['^.+\\.?(css)$'],
+        ],
+      },
     ],
-    'simple-import-sort/exports': 'error'
+    'prettier/prettier': ['error', {}, { usePrettierrc: true }],
+    'simple-import-sort/exports': 'error',
   },
-  plugins: ['unused-imports', 'simple-import-sort'],
+  plugins: ['unused-imports', 'simple-import-sort', 'react'],
   parserOptions: {
     babelOptions: {
-      presets: [require.resolve('next/babel')]
-    }
-  }
-}
+      presets: [require.resolve('next/babel')],
+    },
+  },
+};
