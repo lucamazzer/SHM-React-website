@@ -10,7 +10,7 @@ export default function FilesPage() {
       <h1 className="text-center text-4xl"> DATOS CAPTURADOS</h1>
       <iframe
         className="w-full !h-full mt-10"
-        src={`${API_URL}mediciones`}
+        src={`${API_URL}/datos/mediciones`}
         title="Archivos de mediciones"></iframe>
       <Button
         className="!text-blue-500 !mt-5 !bg-white"
