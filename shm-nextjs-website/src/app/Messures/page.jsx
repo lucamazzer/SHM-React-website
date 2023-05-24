@@ -52,7 +52,7 @@ export default function MessurePage() {
         })
       : undefined;
     const payload = {
-      //id: today + '-' + nMeasure,
+      // id: today + '-' + nMeasure,
       id: nMeasure,
       duration,
       sync,
@@ -230,7 +230,7 @@ export default function MessurePage() {
 
                 {timeFormat === 'relative' && (
                   <div className="flex w-full">
-                    <Box component="form" className="flex flex-1 w-full ">
+                    <Box component="form" className="flex flex-1 w-full">
                       <TextField
                         type="number"
                         className="mr-10 w-900"
