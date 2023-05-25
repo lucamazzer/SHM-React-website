@@ -157,7 +157,7 @@ export default function MessurePage() {
                 onChange={handleSetMeasureDuration}
                 value={duration}
               />
-              <FormControl className="ml-10">
+              <FormControl className="!ml-10">
                 <FormLabel id="relative-unit-form">Unidad duración</FormLabel>
                 <RadioGroup
                   aria-labelledby="demo-controlled-radio-buttons-group"
@@ -233,7 +233,7 @@ export default function MessurePage() {
                     <Box component="form" className="flex flex-1 w-full">
                       <TextField
                         type="number"
-                        className="mr-10 w-900"
+                        className="!mr-10 w-900"
                         id="outlined-basic"
                         label="Inicio de la medicion en:"
                         variant="outlined"

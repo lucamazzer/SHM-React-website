@@ -4,7 +4,7 @@ export const initMeasure = async ({ startTime, duration, id, sync }) => {
   const { data, error } = await api.post('form_inicio', {
     epoch_inicio: startTime,
     duracion_muestreo: duration,
-    nro_muestro: id,
+    nro_muestreo: id,
     sync,
   });
   return { data, error };
@@ -12,7 +12,7 @@ export const initMeasure = async ({ startTime, duration, id, sync }) => {
 
 export const cancelMeasure = async id => {
   const { data, error } = await api.post('cancelar_muestreo', {
-    nro_muestro: id,
+    nro_muestreo: id,
   });
   return { data, error };
 };

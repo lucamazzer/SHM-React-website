@@ -7,7 +7,10 @@ WORKDIR /app
 RUN npm install next
 
 # Install dependencies based on the preferred package manager
-COPY package.json package-lock.json ./
+COPY .prettierrc.js jsconfig.json package.json package-lock.json ./
+COPY next.config.js postcss.config.js tailwind.config.js ./
+
+COPY public ./public
 # Omit --production flag for TypeScript devDependencies
 RUN \
   if [ -f package-lock.json ]; then npm ci; \
@@ -15,8 +18,6 @@ RUN \
   fi
 
 COPY src ./src
-COPY public ./public
-COPY next.config.js .
 
 # Environment variables must be present at build time
 # https://github.com/vercel/next.js/discussions/14030
