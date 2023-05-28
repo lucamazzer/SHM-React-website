@@ -9,6 +9,8 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@canvasjs/charts": "^3.7.7",
+    "@canvasjs/react-charts": "^1.0.0",
     "@emotion/react": "^11.11.0",
     "@emotion/styled": "^11.11.0",
     "@mui/icons-material": "^5.11.16",
@@ -25,17 +27,18 @@
     "postcss": "8.4.23",
     "react": "18.2.0",
     "react-dom": "18.2.0",
+    "react-resizable": "^3.0.5",
     "swr": "^2.1.5",
     "tailwindcss": "3.3.2"
   },
   "devDependencies": {
     "@types/node": "20.2.1",
-    "standard": "17.0.0",
     "eslint-config-prettier": "^8.8.0",
     "eslint-config-turbo": "latest",
     "eslint-plugin-prettier": "^4.2.1",
     "eslint-plugin-react": "7.31.8",
     "eslint-plugin-simple-import-sort": "^10.0.0",
-    "eslint-plugin-unused-imports": "^2.0.0"
+    "eslint-plugin-unused-imports": "^2.0.0",
+    "standard": "17.0.0"
   }
 }
