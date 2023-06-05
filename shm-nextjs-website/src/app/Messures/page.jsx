@@ -63,7 +63,7 @@ export default function MessurePage() {
 
     setLoading(true);
 
-    const { data, error } = await initMeasure(payload);
+    const { error } = await initMeasure(payload);
 
     if (error) {
       console.log(error);
@@ -84,7 +84,7 @@ export default function MessurePage() {
   const handleCancelMeasure = React.useCallback(async () => {
     setLoading(false);
 
-    const { data, error } = await cancelMeasure();
+    const { error } = await cancelMeasure();
     if (error) {
       console.log('error');
       return;

@@ -37,9 +37,9 @@ const graphicOptions = Object.keys(tiposGraphicos).map(key => ({
 
 export default function GraphicsPage() {
   const [data, setData] = React.useState(null);
-  const [dataToShow, setDataToShow] = React.useState(null);
+  // const [dataToShow, setDataToShow] = React.useState(null);
 
-  const [nodes, setNodes] = React.useState([]);
+  // const [nodes, setNodes] = React.useState([]);
 
   const [day, setDay] = React.useState(moment());
   const [nMeasure, setNmeasure] = React.useState(1);
@@ -90,7 +90,7 @@ export default function GraphicsPage() {
  */
 
     const nodesNames = d?.map(item => item.name);
-    setNodes(nodesNames);
+    // setNodes(nodesNames);
     const nodesData = [];
 
     nodesNames.forEach(name => {
@@ -119,7 +119,7 @@ export default function GraphicsPage() {
     }
     const dataFormatted = formatData(response.data.data);
     setData(dataFormatted);
-    setDataToShow(dataFormatted);
+    // setDataToShow(dataFormatted);
   };
 
   const options = {
@@ -137,7 +137,6 @@ export default function GraphicsPage() {
     },
     data,
   };
-  console.log(data);
 
   useEffect(() => {
     if (data) {
