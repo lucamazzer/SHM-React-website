@@ -13,9 +13,11 @@ export default function RootLayout({ children }) {
       <head>
         <title>SHM</title>
       </head>
-      <body className="flex flex-col h-full">
+
+      <body className="flex h-full">
         <Navigation />
-        <div className="flex flex-col p-5 h-full">{children}</div>
+        <div className="bg-blue-700 w-1" />
+        <div className="flex flex-col h-full w-full ">{children}</div>
       </body>
     </html>
   );

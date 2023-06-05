@@ -6,13 +6,13 @@ import Select from '@mui/material/Select';
 
 const MySelect = ({ options, title, optionsLabel, value, onChange }) => {
   return (
-    <FormControl size="small" sx={{ m: 1 }} className="bg-white">
+    <FormControl sx={{ m: 1 }} className="">
       {!!title && <InputLabel id="select-title">{title}</InputLabel>}
       <Select
         labelId="demo-select-small-label"
         id="demo-select-small"
         value={value}
-        label={optionsLabel}
+        label={title}
         onChange={onChange}>
         {options.map(item => (
           <MenuItem key={item.value} value={item.value}>

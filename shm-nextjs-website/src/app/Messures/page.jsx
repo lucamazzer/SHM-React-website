@@ -1,17 +1,7 @@
 'use client';
 import * as React from 'react';
-import {
-  Button,
-  CircularProgress,
-  FormControl,
-  FormControlLabel,
-  FormLabel,
-  Radio,
-  RadioGroup,
-  Switch,
-} from '@mui/material';
+import { Button, CircularProgress, Switch, ThemeProvider } from '@mui/material';
 import Box from '@mui/material/Box';
-import TextField from '@mui/material/TextField';
 import { LocalizationProvider, TimeField } from '@mui/x-date-pickers';
 import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
@@ -19,9 +9,16 @@ import moment from 'moment';
 
 import { cancelMeasure, initMeasure } from '@/Services/Measures.api';
 
+import theme from '../../styles/mui-theme';
+import MyRadioGroup from '../components/inputs/MyRadioGroup';
+import MyTextfield from '../components/inputs/MyTextfield';
+
 export default function MessurePage() {
   const [time, setTime] = React.useState(moment());
   const [day, setDay] = React.useState(moment());
+  const [deleteDay, setDeleteDay] = React.useState(moment());
+  const [nDelMeasure, setDelNmeasure] = React.useState(1);
+
   const [relativeTimeUnit, setRelativeTimeUnit] = React.useState('m');
   const [nMeasure, setNmeasure] = React.useState(1);
   const [relativeTime, setRelativeTime] = React.useState(5);
@@ -41,6 +38,12 @@ export default function MessurePage() {
     }
   };
 
+  const unitsOptions = [
+    { value: 's', label: 'Segundos' },
+    { value: 'm', label: 'Minutos' },
+    { value: 'h', label: 'Horas' },
+  ];
+
   const handleMakeMeasure = React.useCallback(async () => {
     const today = moment().format('YYYYMMDD');
     const startTime = sync
@@ -52,13 +55,12 @@ export default function MessurePage() {
         })
       : undefined;
     const payload = {
-      // id: today + '-' + nMeasure,
-      id: nMeasure,
+      id: today + '-' + nMeasure,
       duration,
       sync,
       startTime,
     };
-    console.log(payload);
+
     setLoading(true);
 
     const { data, error } = await initMeasure(payload);
@@ -80,6 +82,8 @@ export default function MessurePage() {
   ]);
 
   const handleCancelMeasure = React.useCallback(async () => {
+    setLoading(false);
+
     const { data, error } = await cancelMeasure();
     if (error) {
       console.log('error');
@@ -91,6 +95,10 @@ export default function MessurePage() {
   const handleSetnMeasure = event => {
     const newValue = event.target.value < 1 ? 1 : event.target.value;
     setNmeasure(newValue);
+  };
+  const handleSetnDelMeasure = event => {
+    const newValue = event.target.value < 1 ? 1 : event.target.value;
+    setDelNmeasure(newValue);
   };
 
   const handleDurationUnit = event => {
@@ -109,170 +117,185 @@ export default function MessurePage() {
     setTimeFormat(event.target.value);
   };
 
+  const handleChangeRelativeTime = event => {
+    const newValue = event.target.value < 1 ? 1 : event.target.value;
+
+    setRelativeTime(newValue);
+  };
+
   return (
-    <LocalizationProvider dateAdapter={AdapterMoment}>
-      <div className="bg-white w-full text-black h-full p-5">
-        <h1 className="text-center text-4xl">Control de mediciones</h1>
-        {loading && (
-          <div className="flex flex-1 h-full flex-col items-center justify-center">
-            <CircularProgress size={64} />
-            {loading && (
-              <Button onClick={handleCancelMeasure} className="mt-10">
-                Cancelar
-              </Button>
-            )}
-          </div>
-        )}
-        {!loading && (
-          <Box
-            component="form"
-            className="flex flex-col item-center w-full h-full"
-            noValidate
-            autoComplete="off">
-            <div className="flex items-center my-5">
-              <TextField
-                type="number"
-                id="id-medicion"
-                label="Nombre de la medicion"
-                variant="outlined"
-                required
-                value={nMeasure}
-                onChange={handleSetnMeasure}
-              />
+    <ThemeProvider theme={theme}>
+      <LocalizationProvider dateAdapter={AdapterMoment}>
+        <div className="flex flex-col flex-1 p-5 bg-gray-300">
+          <h1 className="text-center text-4xl">Control de mediciones</h1>
+          {loading && (
+            <div className="flex flex-1 p-5 mt-5 items-center justify-center bg-gray-200 border-2 border-primary rounded-2xl item-center">
+              <CircularProgress size={64} color="primary" />
+              {loading && (
+                <Button onClick={handleCancelMeasure} className="mt-10">
+                  Cancelar
+                </Button>
+              )}
             </div>
-            <div className="flex items-center my-5">
-              <h1>Sync?</h1>
-              <Switch
-                checked={sync}
-                onChange={e => setSync(e.target.checked)}
-                className="text-black"
-              />
-            </div>
-            <Box component="form">
-              <TextField
-                type="number"
-                id="outlined-basic"
-                label="duración de la medicion"
-                variant="outlined"
-                onChange={handleSetMeasureDuration}
-                value={duration}
-              />
-              <FormControl className="!ml-10">
-                <FormLabel id="relative-unit-form">Unidad duración</FormLabel>
-                <RadioGroup
-                  aria-labelledby="demo-controlled-radio-buttons-group"
-                  name="controlled-radio-buttons-group"
-                  value={durationUnit}
-                  onChange={handleDurationUnit}>
-                  <FormControlLabel
-                    value="s"
-                    control={<Radio />}
-                    label="Segundos"
-                  />
-                  <FormControlLabel
-                    value="m"
-                    control={<Radio />}
-                    label="Minutos"
-                  />
-                  <FormControlLabel
-                    value="h"
-                    control={<Radio />}
-                    label="Horas"
-                  />
-                </RadioGroup>
-              </FormControl>
-            </Box>
-
-            {sync && (
-              <div className="flex flex-col	 w-full mt-5">
-                <FormControl className="w-full">
-                  <FormLabel id="time-format-form">
-                    De que forma ingresa el tiempo de inicio de la medición?
-                  </FormLabel>
-                  <RadioGroup
-                    aria-labelledby="demo-controlled-radio-buttons-group"
-                    name="time-format-group"
-                    className="py-5"
-                    value={timeFormat}
-                    onChange={handleChangeTimeFormat}
-                    row>
-                    <FormControlLabel
-                      value="relative"
-                      control={<Radio />}
-                      label="Relativo"
-                    />
-                    <FormControlLabel
-                      value="absolute"
-                      control={<Radio />}
-                      label="Fecha y hora"
-                    />
-                  </RadioGroup>
-                </FormControl>
-                {timeFormat === 'absolute' && (
-                  <div className="flex  w-full mt-5 items-center">
-                    <DatePicker
-                      value={day}
-                      onChange={newValue => setDay(newValue)}
-                    />
-                    {/* <StaticTimePicker
-                      label="Controlled picker"
-                      value={time}
-                      onChange={newValue => setTime(newValue)}
-                    /> */}
-                    <TimeField
-                      label="Hora de inicio de la medicion"
-                      className="ml-5"
-                      value={time}
-                      onChange={newValue => setTime(newValue)}
+          )}
+          {!loading && (
+            <div className="flex justify-center">
+              <div className="flex flex-col p-5 mt-5 items-center justify-center bg-gray-200 border-2 border-primary rounded-2xl item-center mr-5">
+                <h1 className="text-center text-2xl">Realizar una medición</h1>
+                <Box
+                  component="form"
+                  className="flex  flex-col"
+                  noValidate
+                  autoComplete="off">
+                  <div className="flex items-center my-5">
+                    <MyTextfield
+                      type="number"
+                      id="id-medicion"
+                      label="Nombre de la medicion"
+                      variant="outlined"
+                      required
+                      value={nDelMeasure}
+                      onChange={handleSetnDelMeasure}
                     />
                   </div>
-                )}
-
-                {timeFormat === 'relative' && (
-                  <div className="flex w-full">
-                    <Box component="form" className="flex flex-1 w-full">
-                      <TextField
-                        type="number"
-                        className="!mr-10 w-900"
-                        id="outlined-basic"
-                        label="Inicio de la medicion en:"
-                        variant="outlined"
-                        onChange={e => setRelativeTime(e.target.value)}
-                        value={relativeTime}
+                  <div className="flex mb-5 items-center">
+                    <h1 className="text-primary font-medium">
+                      Medición sincronizada?
+                    </h1>
+                    <Switch
+                      checked={sync}
+                      onChange={e => setSync(e.target.checked)}
+                      color="primary"
+                    />
+                  </div>
+                  <div className="flex">
+                    <MyTextfield
+                      type="number"
+                      id="outlined-basic"
+                      label="duración de la medicion"
+                      variant="outlined"
+                      onChange={handleSetMeasureDuration}
+                      value={duration}
+                    />
+                    <div className="ml-5">
+                      <MyRadioGroup
+                        title={'Unidad duración'}
+                        options={unitsOptions}
+                        value={durationUnit}
+                        onChange={handleDurationUnit}
                       />
-                      <FormControl>
-                        <FormLabel id="relative-unit-form">Unidad</FormLabel>
-                        <RadioGroup
-                          aria-labelledby="demo-controlled-radio-buttons-group"
-                          name="controlled-radio-buttons-group"
-                          value={relativeTimeUnit}
-                          onChange={handleChangeRelativeTimeUnit}>
-                          <FormControlLabel
-                            value="s"
-                            control={<Radio />}
-                            label="Segundos"
-                          />
-                          <FormControlLabel
-                            value="m"
-                            control={<Radio />}
-                            label="Minutos"
-                          />
-                          <FormControlLabel
-                            value="h"
-                            control={<Radio />}
-                            label="Horas"
-                          />
-                        </RadioGroup>
-                      </FormControl>
-                    </Box>
+                    </div>
                   </div>
-                )}
+
+                  {sync && (
+                    <div className="flex flex-col	w-full mt-5">
+                      <MyRadioGroup
+                        title={
+                          ' De que forma ingresa el tiempo de inicio de la medición?'
+                        }
+                        options={[
+                          { value: 'relative', label: 'Relativo' },
+                          { value: 'absolute', label: 'Fecha y hora' },
+                        ]}
+                        row
+                        color="primary"
+                        className="mb-5 mt-5"
+                        value={timeFormat}
+                        onChange={handleChangeTimeFormat}
+                      />
+                      {timeFormat === 'absolute' && (
+                        <div className="flex w-full mt-5 items-center">
+                          <DatePicker
+                            color="primary"
+                            value={day}
+                            label="Fecha de incio de la medición"
+                            onChange={newValue => setDay(newValue)}
+                          />
+
+                          <TimeField
+                            label="Hora de inicio de la medición"
+                            className="ml-5"
+                            value={time}
+                            color="primary"
+                            onChange={newValue => setTime(newValue)}
+                          />
+                        </div>
+                      )}
+
+                      {timeFormat === 'relative' && (
+                        <div className="flex w-full">
+                          <Box component="form" className="flex flex-1 w-full">
+                            <MyTextfield
+                              type="number"
+                              className="!mr-10 w-900"
+                              id="outlined-basic"
+                              label="Inicio de la medicion en:"
+                              variant="outlined"
+                              onChange={handleChangeRelativeTime}
+                              value={relativeTime}
+                            />
+                            <MyRadioGroup
+                              title={'Unidad'}
+                              options={unitsOptions}
+                              value={relativeTimeUnit}
+                              onChange={handleChangeRelativeTimeUnit}
+                            />
+                          </Box>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </Box>
+                <Button
+                  onClick={handleMakeMeasure}
+                  className="!mt-5 bg-primary hover:bg-blue-700"
+                  variant="contained">
+                  Iniciar medición
+                </Button>
               </div>
-            )}
-          </Box>
-        )}
-        {!loading && <Button onClick={handleMakeMeasure}>Start</Button>}{' '}
-      </div>
-    </LocalizationProvider>
+              <div className="flex flex-col p-5 mt-5 items-center bg-gray-200 border-2 border-primary rounded-2xl item-center ">
+                <h1 className="text-center text-2xl">Borrar mediciones</h1>
+                <Box
+                  component="form"
+                  className="flex  flex-col"
+                  noValidate
+                  autoComplete="off">
+                  <div className="flex items-center my-5">
+                    <MyTextfield
+                      type="number"
+                      id="id-medicion"
+                      label="Nombre de la medicion"
+                      variant="outlined"
+                      required
+                      value={nMeasure}
+                      onChange={handleSetnMeasure}
+                    />
+                  </div>
+                  <DatePicker
+                    color="primary"
+                    label="Fecha de la medición"
+                    value={deleteDay}
+                    onChange={newValue => setDeleteDay(newValue)}
+                  />
+                </Box>
+
+                <Button
+                  onClick={() => {}}
+                  className="!mt-5 bg-primary hover:bg-blue-700"
+                  variant="contained">
+                  Borrar medicion
+                </Button>
+                <Button
+                  onClick={() => {}}
+                  className="!mt-5 bg-primary hover:bg-blue-700"
+                  variant="contained">
+                  Borrar todo
+                </Button>
+              </div>
+            </div>
+          )}
+        </div>
+      </LocalizationProvider>
+    </ThemeProvider>
   );
 }
