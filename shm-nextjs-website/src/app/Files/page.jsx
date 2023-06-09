@@ -16,7 +16,7 @@ export default function FilesPage() {
       </Button>
       <iframe
         className="w-full  mt-10"
-        src={`${API_URL}files`}
+        src={`http://localhost/files`}
         title="Archivos de mediciones"
       />
     </div>
