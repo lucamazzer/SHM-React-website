@@ -1,7 +1,6 @@
 'use client';
 import { Button } from '@mui/material';
 
-import { API_URL } from '@/api/api';
 import { downloadFiles } from '@/Services/Data.api';
 
 export default function FilesPage() {
