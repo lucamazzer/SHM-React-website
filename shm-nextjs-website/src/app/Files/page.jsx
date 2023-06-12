@@ -1,7 +1,6 @@
 'use client';
 import { Button } from '@mui/material';
 
-import { API_URL } from '@/api/api';
 import { downloadFiles } from '@/Services/Data.api';
 
 export default function FilesPage() {
@@ -16,7 +15,7 @@ export default function FilesPage() {
       </Button>
       <iframe
         className="w-full  mt-10"
-        src={`${API_URL}/datos/mediciones`}
+        src={`http://localhost/files`}
         title="Archivos de mediciones"
       />
     </div>

@@ -1,8 +1,6 @@
 import React from 'react';
-import dynamic from 'next/dynamic';
-const CanvasJSReact = dynamic(() => import('@canvasjs/react-charts'), {
-  ssr: false,
-});
+import CanvasJSReact from '@canvasjs/react-charts';
+
 const CanvasJSChart = CanvasJSReact.CanvasJSChart;
 
 export default function LineChart({

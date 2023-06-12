@@ -1,0 +1,23 @@
+FROM node:18-alpine AS base
+
+WORKDIR /app
+RUN npm install next
+
+COPY package*.json ./
+
+RUN \
+  if [ -f package-lock.json ]; then npm ci; \
+  else npm install; \
+  fi
+
+# Don't run production as root
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
+#USER nextjs
+
+# Uncomment the following line to disable telemetry at run time
+# ENV NEXT_TELEMETRY_DISABLED 1
+
+# Note: Don't expose ports here, Compose will handle that for us
+
+CMD ["npm", "run", "dev"]

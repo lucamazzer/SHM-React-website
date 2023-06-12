@@ -4,13 +4,18 @@ import React, { useEffect } from 'react';
 import { Button, TextField, ThemeProvider } from '@mui/material';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
+import classNames from 'classnames';
 import moment from 'moment';
+import dynamic from 'next/dynamic';
 
 import { getGraphData } from '@/Services/graphics';
 
 import theme from '../../styles/mui-theme';
-import LineChart from '../components/LineChart';
 import MySelect from '../components/MySelect';
+
+const LineChart = dynamic(() => import('../components/LineChart'), {
+  ssr: false,
+});
 
 const tiposGraphicos = {
   accelerationX: 'Aceleracion en X',
@@ -184,11 +189,14 @@ export default function GraphicsPage() {
               Obtener medición
             </Button>
           </div>
-          {data?.length > 0 && (
-            <div className="flex flex-col p-5 mt-5 items-center justify-center bg-gray-200 border-2 border-primary rounded-2xl item-center ">
-              {<LineChart options={options} />}
-            </div>
-          )}
+
+          <div
+            className={classNames(
+              { hidden: !(data && data?.length > 0) },
+              'flex flex-col p-5 mt-5 items-center justify-center bg-gray-200 border-2 border-primary rounded-2xl item-center ',
+            )}>
+            <LineChart options={options} />
+          </div>
         </div>
       </LocalizationProvider>
     </ThemeProvider>
