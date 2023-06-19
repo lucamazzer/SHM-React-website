@@ -5,16 +5,17 @@ import { downloadFiles } from '@/Services/Data.api';
 
 export default function FilesPage() {
   return (
-    <div className="w-full h-full bg-gray-200 p-5">
+    <div className="flex  flex-col w-full h-full bg-gray-200 p-5">
       <h1 className="text-center text-4xl">DATOS CAPTURADOS</h1>
       <Button
-        className="!mt-5 bg-primary hover:bg-blue-700"
+        className="!mt-5 bg-primary hover:bg-blue-700 w-fit	"
         variant="contained"
         onClick={downloadFiles}>
         Descargar todo
       </Button>
+
       <iframe
-        className="w-full  mt-10"
+        className="flex flex-col flex-1 mt-10"
         src={`http://localhost/files`}
         title="Archivos de mediciones"
       />

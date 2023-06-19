@@ -55,7 +55,8 @@ export default function MessurePage() {
         })
       : undefined;
     const payload = {
-      id: today + '-' + nMeasure,
+      // id: today + '-' + nMeasure,
+      id: nMeasure,
       duration,
       sync,
       startTime,
@@ -129,13 +130,11 @@ export default function MessurePage() {
         <div className="flex flex-col flex-1 p-5 bg-gray-300">
           <h1 className="text-center text-4xl">Control de mediciones</h1>
           {loading && (
-            <div className="flex flex-1 p-5 mt-5 items-center justify-center bg-gray-200 border-2 border-primary rounded-2xl item-center">
+            <div className="flex flex-1 flex-col p-5 mt-5 items-center justify-center bg-gray-200 border-2 border-primary rounded-2xl item-center">
               <CircularProgress size={64} color="primary" />
-              {loading && (
-                <Button onClick={handleCancelMeasure} className="mt-10">
-                  Cancelar
-                </Button>
-              )}
+              <Button onClick={handleCancelMeasure} className="mt-10">
+                Cancelar
+              </Button>
             </div>
           )}
           {!loading && (

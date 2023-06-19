@@ -1,5 +1,6 @@
 'use client';
 
+import React, { useMemo, useState } from 'react';
 import moment from 'moment';
 import useSWR from 'swr';
 
@@ -15,48 +16,59 @@ async function getNodesInformation() {
 
 const tableHeader = [
   'Id',
-  'Nombre',
-  'Estado',
+  // 'Nombre',
+  'IP',
   'Señal',
   'Tipo',
   'Estado de sincornización',
   'Hora',
-  'IP',
+  'Estado',
 ];
 
 export default function InfoPage() {
+  const [date, setDate] = useState(null);
   const { data, error, isValidating, mutate } = useSWR(
     'nodes_table',
-    getNodesInformation,
+    async () => {
+      const { data, error } = await getNodesInformation();
+      setDate(moment().format('DD/MM/YYYY HH:mm:ss'));
+
+      return { data, error };
+    },
   );
 
   const formatData = d => {
     if (!d) return [];
     return d.map(item => ({
       ...item,
-      time: moment(item.time).format('HH:mm:ss'),
+      //  time: moment(item.time).format('HH:mm:ss'),
     }));
   };
 
-  const loading = isValidating || (!data && !error);
+  const loading = useMemo(
+    () => isValidating || (!data && !error),
+    [data, isValidating, error],
+  );
 
   return (
-    <div className="flex flex-1 flex-col h-full pb-5">
+    <div className="flex flex-1 flex-col pb-5">
       <h1 className="text-center text-4xl text-white mt-10">Estado de nodos</h1>
       <div className="ml-10">
         <MyButton onClick={mutate} disabled={loading} variant={'contained'}>
           Actualizar estados
         </MyButton>
       </div>
-
-      <div className="flex flex-col w-full h-full m-5 mt-10">
+      <div className="m-5 mt-10">
         <DenseTable
           data={formatData(data?.data)}
           tableHeader={tableHeader}
           loading={loading}
         />
-        <Loader loading={true} />
+        <Loader loading={loading} />
       </div>
+      {!!date && (
+        <span className="text-white ml-5">{`Ultima actualización: ${date}`}</span>
+      )}
     </div>
   );
 }

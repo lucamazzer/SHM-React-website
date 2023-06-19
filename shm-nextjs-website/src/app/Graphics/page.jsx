@@ -1,7 +1,14 @@
 'use client';
 
-import React, { useEffect } from 'react';
-import { Button, TextField, ThemeProvider } from '@mui/material';
+import React, { useCallback, useEffect, useMemo } from 'react';
+import toast from 'react-hot-toast';
+import {
+  Button,
+  FormControlLabel,
+  TextField,
+  ThemeProvider,
+} from '@mui/material';
+import Checkbox from '@mui/material/Checkbox';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
 import classNames from 'classnames';
@@ -38,13 +45,11 @@ const graphicOptions = Object.keys(tiposGraphicos).map(key => ({
   label: tiposGraphicos[key],
 }));
 
-// la data llega del siguiente modo
-
 export default function GraphicsPage() {
   const [data, setData] = React.useState(null);
-  // const [dataToShow, setDataToShow] = React.useState(null);
+  const [dataToShow, setDataToShow] = React.useState(null);
 
-  // const [nodes, setNodes] = React.useState([]);
+  const [nodesToShow, setNodesToShow] = React.useState({});
 
   const [day, setDay] = React.useState(moment());
   const [nMeasure, setNmeasure] = React.useState(1);
@@ -95,7 +100,11 @@ export default function GraphicsPage() {
  */
 
     const nodesNames = d?.map(item => item.name);
-    // setNodes(nodesNames);
+    const nodesToshowobj = {};
+    nodesNames.forEach(name => {
+      nodesToshowobj[name] = true;
+    });
+    setNodesToShow(nodesToshowobj);
     const nodesData = [];
 
     nodesNames.forEach(name => {
@@ -116,38 +125,53 @@ export default function GraphicsPage() {
   };
 
   const handleGetGraphicsData = async () => {
-    const response = await getGraphData();
+    const id = `${moment(day).format('DDMMYYYY')}_${nMeasure}`;
+    const response = await getGraphData(id);
 
     if (response.error) {
       console.log(response.error);
+      toast.error(response.error.message);
       return;
     }
     const dataFormatted = formatData(response.data.data);
     setData(dataFormatted);
-    // setDataToShow(dataFormatted);
+    setDataToShow(dataFormatted);
   };
 
-  const options = {
-    zoomEnabled: true,
-    theme: 'dark2',
-    animationEnabled: true,
-    title: {
-      text: tiposGraphicos[graphOpt],
-    },
-    axisX: {
-      gridThickness: 0,
-      title: 'Tiempo (m)',
-      titleFontColor: 'white',
-      labelFontColor: 'white',
-    },
-    data,
-  };
+  const options = useMemo(
+    () => ({
+      zoomEnabled: true,
+      theme: 'dark2',
+      animationEnabled: true,
+      title: {
+        text: tiposGraphicos[graphOpt],
+      },
+      axisX: {
+        gridThickness: 0,
+        title: 'Tiempo (m)',
+        titleFontColor: 'white',
+        labelFontColor: 'white',
+      },
+      data: dataToShow,
+    }),
+    [dataToShow],
+  );
 
   useEffect(() => {
     if (data) {
       handleGetGraphicsData();
     }
   }, [graphOpt]);
+
+  const handleCheck = useCallback(
+    (name, checked) => {
+      const newNodesToShow = { ...nodesToShow, [name]: checked };
+      setNodesToShow(newNodesToShow);
+      const newDataToShow = data?.filter(item => newNodesToShow[item.name]);
+      setDataToShow(newDataToShow);
+    },
+    [nodesToShow, data],
+  );
 
   return (
     <ThemeProvider theme={theme}>
@@ -189,12 +213,25 @@ export default function GraphicsPage() {
               Obtener medición
             </Button>
           </div>
-
           <div
             className={classNames(
               { hidden: !(data && data?.length > 0) },
-              'flex flex-col p-5 mt-5 items-center justify-center bg-gray-200 border-2 border-primary rounded-2xl item-center ',
+              'flex p-5 mt-5 items-center justify-center bg-gray-200 border-2 border-primary rounded-2xl item-center ',
             )}>
+            <div className="flex flex-col">
+              {Object.keys(nodesToShow)?.map(item => (
+                <FormControlLabel
+                  key={item}
+                  label={`${item}`}
+                  control={
+                    <Checkbox
+                      checked={nodesToShow[item]}
+                      onChange={e => handleCheck(item, e.target.checked)}
+                    />
+                  }
+                />
+              ))}
+            </div>
             <LineChart options={options} />
           </div>
         </div>
