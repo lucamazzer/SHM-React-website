@@ -64,7 +64,9 @@ export default function InfoPage() {
           tableHeader={tableHeader}
           loading={loading}
         />
-        <Loader loading={loading} />
+        <div className="flex justify-center items-center">
+          <Loader loading={loading} />
+        </div>
       </div>
       {!!date && (
         <span className="text-white ml-5">{`Ultima actualización: ${date}`}</span>

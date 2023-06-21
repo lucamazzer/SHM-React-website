@@ -126,7 +126,7 @@ export default function GraphicsPage() {
 
   const handleGetGraphicsData = async () => {
     const id = `${moment(day).format('DDMMYYYY')}_${nMeasure}`;
-    const response = await getGraphData(id);
+    const response = await getGraphData(nMeasure);
 
     if (response.error) {
       console.log(response.error);
