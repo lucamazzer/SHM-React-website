@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import toast from 'react-hot-toast';
 import { Button, CircularProgress, Switch, ThemeProvider } from '@mui/material';
 import Box from '@mui/material/Box';
 import { LocalizationProvider, TimeField } from '@mui/x-date-pickers';
@@ -7,7 +8,11 @@ import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import moment from 'moment';
 
-import { cancelMeasure, initMeasure } from '@/Services/Measures.api';
+import {
+  cancelMeasure,
+  getMeasureStatus,
+  initMeasure,
+} from '@/Services/Measures.api';
 
 import theme from '../../styles/mui-theme';
 import MyRadioGroup from '../components/inputs/MyRadioGroup';
@@ -54,20 +59,36 @@ export default function MessurePage() {
           day,
         })
       : undefined;
+
+    const timeout = duration * 60000 + relativeTime * 60000 + 60000;
+
     const payload = {
       // id: today + '-' + nMeasure,
       id: nMeasure,
       duration,
       sync,
       startTime,
+      timeout,
     };
 
     setLoading(true);
+
+    const { error: measureStateError } = await getMeasureStatus(sync);
+
+    if (measureStateError) {
+      console.log(measureStateError);
+      setLoading(false);
+
+      toast.error(measureStateError.message);
+
+      return;
+    }
 
     const { error } = await initMeasure(payload);
 
     if (error) {
       console.log(error);
+      toast.error(error.message);
     }
     setLoading(false);
   }, [
