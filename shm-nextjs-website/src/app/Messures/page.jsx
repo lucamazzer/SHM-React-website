@@ -6,6 +6,7 @@ import Box from '@mui/material/Box';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import moment from 'moment';
 
+import { useAppContext } from '@/contexts/appContext';
 import {
   cancelMeasure,
   getMeasureStatus,
@@ -15,35 +16,37 @@ import {
 import MyTextfield from '../components/inputs/MyTextfield';
 
 export default function MessurePage() {
-  const [time, setTime] = React.useState(moment());
-  const [day, setDay] = React.useState(moment());
   const [deleteDay, setDeleteDay] = React.useState(moment());
   const [nDelMeasure, setDelNmeasure] = React.useState(1);
 
-  const [relativeTimeUnit, setRelativeTimeUnit] = React.useState('m');
   const [nMeasure, setNmeasure] = React.useState(1);
-  const [relativeTime, setRelativeTime] = React.useState(1);
-  const [duration, setDuration] = React.useState(1);
-  const [durationUnit, setDurationUnit] = React.useState('m');
-  const [timeFormat, setTimeFormat] = React.useState('relative');
   const [sync, setSync] = React.useState(true);
-  const [loading, setLoading] = React.useState(false);
+  const [duration, setDuration] = React.useState(1);
 
-  const formatStartTime = (type, data) => {
-    if (type === 'relative') {
-      return moment().add(data.relativeTime, data.relativeTimeUnit).unix();
-    } else {
-      const tformat = moment(time).format('hh:mm:ss');
-      const dformat = moment(day).format('YYYY-MM-DD');
-      return moment(`${dformat} ${tformat}`).unix();
-    }
-  };
+  // const [relativeTime, setRelativeTime] = React.useState(1);
+  // const [durationUnit, setDurationUnit] = React.useState('m');
+  // const [time, setTime] = React.useState(moment());
+  // const [day, setDay] = React.useState(moment());
+  // const [relativeTimeUnit, setRelativeTimeUnit] = React.useState('m');
+  // const [timeFormat, setTimeFormat] = React.useState('relative');
 
-  const unitsOptions = [
-    { value: 's', label: 'Segundos' },
-    { value: 'm', label: 'Minutos' },
-    { value: 'h', label: 'Horas' },
-  ];
+  const { measureInProgress, setMeasureInProgress } = useAppContext();
+
+  // const formatStartTime = (type, data) => {
+  //   if (type === 'relative') {
+  //     return moment().add(data.relativeTime, data.relativeTimeUnit).unix();
+  //   } else {
+  //     const tformat = moment(time).format('hh:mm:ss');
+  //     const dformat = moment(day).format('YYYY-MM-DD');
+  //     return moment(`${dformat} ${tformat}`).unix();
+  //   }
+  // };
+
+  // const unitsOptions = [
+  //   { value: 's', label: 'Segundos' },
+  //   { value: 'm', label: 'Minutos' },
+  //   { value: 'h', label: 'Horas' },
+  // ];
 
   const handleMakeMeasure = React.useCallback(async () => {
     const today = moment().format('YYYYMMDD');
@@ -56,9 +59,9 @@ export default function MessurePage() {
     //     })
     //   : undefined;
 
-    const startTime = sync ? moment().add(relativeTime, 'm').unix() : undefined;
+    const startTime = sync ? moment().add(1, 'm').unix() : undefined;
 
-    const timeout = duration * 60000 + relativeTime * 60000 + 60000;
+    const timeout = duration * 60000 + 1 * 60000 + 60000;
 
     const payload = {
       // id: today + '-' + nMeasure,
@@ -69,13 +72,13 @@ export default function MessurePage() {
       timeout,
     };
 
-    setLoading(true);
+    setMeasureInProgress(true);
 
     const { error: measureStateError } = await getMeasureStatus(sync);
 
     if (measureStateError) {
       console.log(measureStateError);
-      setLoading(false);
+      setMeasureInProgress(false);
 
       toast.error(measureStateError.message);
 
@@ -88,31 +91,22 @@ export default function MessurePage() {
       console.log(error);
       toast.error(error.message);
     }
-    setLoading(false);
-  }, [
-    duration,
-    durationUnit,
-    nMeasure,
-    sync,
-    timeFormat,
-    day,
-    time,
-    relativeTime,
-    relativeTimeUnit,
-  ]);
+    setMeasureInProgress(false);
+  }, [duration, nMeasure, sync]);
 
   const handleCancelMeasure = React.useCallback(async () => {
-    setLoading(false);
+    setMeasureInProgress(false);
 
     const { error } = await cancelMeasure();
     if (error) {
       console.log('error');
       return;
     }
-    setLoading(false);
+    setMeasureInProgress(false);
   }, []);
 
   const handleSetnMeasure = event => {
+    console.log('nmeasure', event.target.value);
     const newValue = event.target.value < 1 ? 1 : event.target.value;
     setNmeasure(newValue);
   };
@@ -121,13 +115,15 @@ export default function MessurePage() {
     setDelNmeasure(newValue);
   };
 
-  const handleDurationUnit = event => {
-    setDurationUnit(event.target.value);
-  };
   const handleSetMeasureDuration = event => {
+    console.log('duration', event.target.value);
     const newValue = event.target.value < 1 ? 1 : event.target.value;
     setDuration(newValue);
   };
+
+  // const handleDurationUnit = event => {
+  //   setDurationUnit(event.target.value);
+  // };
 
   /*
 
@@ -153,7 +149,7 @@ export default function MessurePage() {
   return (
     <div className="flex flex-col flex-1 p-5 bg-gray-300">
       <h1 className="text-center text-4xl">Control de mediciones</h1>
-      {loading && (
+      {measureInProgress && (
         <div className="flex flex-1 flex-col p-5 mt-5 items-center justify-center bg-gray-200 border-2 border-primary rounded-2xl item-center">
           <CircularProgress size={64} color="primary" />
           <Button onClick={handleCancelMeasure} className="mt-10">
@@ -161,7 +157,7 @@ export default function MessurePage() {
           </Button>
         </div>
       )}
-      {!loading && (
+      {!measureInProgress && (
         <div className="flex justify-center">
           <div className="flex flex-col p-5 mt-5 items-center justify-center bg-gray-200 border-2 border-primary rounded-2xl item-center mr-5">
             <h1 className="text-center text-2xl">Realizar una medición</h1>
@@ -177,8 +173,8 @@ export default function MessurePage() {
                   label="Nombre de la medicion"
                   variant="outlined"
                   required
-                  value={nDelMeasure}
-                  onChange={handleSetnDelMeasure}
+                  value={nMeasure}
+                  onChange={e => handleSetnMeasure(e)}
                 />
               </div>
               <div className="flex mb-5 items-center">
@@ -299,13 +295,14 @@ export default function MessurePage() {
                   label="Nombre de la medicion"
                   variant="outlined"
                   required
-                  value={nMeasure}
-                  onChange={handleSetnMeasure}
+                  value={nDelMeasure}
+                  onChange={handleSetnDelMeasure}
                 />
               </div>
               <DatePicker
                 color="primary"
                 label="Fecha de la medición"
+                required
                 value={deleteDay}
                 onChange={newValue => setDeleteDay(newValue)}
               />
