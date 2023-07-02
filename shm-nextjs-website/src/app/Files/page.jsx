@@ -3,6 +3,8 @@ import { Button } from '@mui/material';
 
 import { downloadFiles } from '@/Services/Data.api';
 
+import { HOST_NAME } from '@/api/api';
+
 export default function FilesPage() {
   return (
     <div className="flex  flex-col w-full h-full bg-gray-200 p-5">
@@ -16,7 +18,7 @@ export default function FilesPage() {
 
       <iframe
         className="flex flex-col flex-1 mt-10"
-        src={`http://localhost/files`}
+        src={`http://${HOST_NAME}/files`}
         title="Archivos de mediciones"
       />
     </div>
