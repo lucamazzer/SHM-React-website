@@ -34,7 +34,7 @@ export const cancelMeasure = async id => {
 
 export const getMeasureStatus = async sync => {
   try {
-    const { data, error } = await api.get('check_measure_status', {
+    const { data, error } = await api.post('check_measure_status', {
       sync,
     });
     return { data, error };

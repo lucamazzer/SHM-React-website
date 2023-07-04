@@ -7,11 +7,7 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import moment from 'moment';
 
 import { useAppContext } from '@/contexts/appContext';
-import {
-  cancelMeasure,
-  getMeasureStatus,
-  initMeasure,
-} from '@/Services/Measures.api';
+import { cancelMeasure, getMeasureStatus } from '@/Services/Measures.api';
 
 import MyTextfield from '../components/inputs/MyTextfield';
 
@@ -74,23 +70,24 @@ export default function MessurePage() {
 
     setMeasureInProgress(true);
 
-    const { error: measureStateError } = await getMeasureStatus(sync);
+    const { error: measureStateError, data } = await getMeasureStatus(sync);
 
-    if (measureStateError) {
-      console.log(measureStateError);
+    if (measureStateError || data.status !== 'ok') {
       setMeasureInProgress(false);
 
-      toast.error(measureStateError.message);
+      toast.error(
+        measureStateError?.message || data?.error || 'error estado nodos',
+      );
 
       return;
     }
 
-    const { error } = await initMeasure(payload);
+    // const { error } = await initMeasure(payload);
 
-    if (error) {
-      console.log(error);
-      toast.error(error.message);
-    }
+    // if (error) {
+    //   console.log(error);
+    //   toast.error(error.message);
+    // }
     setMeasureInProgress(false);
   }, [duration, nMeasure, sync]);
 
