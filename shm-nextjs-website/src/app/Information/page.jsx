@@ -24,6 +24,20 @@ const tableHeader = [
   'Hora',
   'Estado',
 ];
+const stateMapper = {
+  standby: 'Listo',
+  muestreando: 'Midiendo',
+  esperando_hora_inicio: 'Esperando para iniciar',
+};
+
+const syncMapper = {
+  sincronizado: 'Sincronizado',
+  no_sincronizado: 'No sincronizado',
+};
+
+const typeMapper = {
+  nodo_acelerometro: 'Acelerómetro',
+};
 
 export default function InfoPage() {
   const [date, setDate] = useState(null);
@@ -39,10 +53,16 @@ export default function InfoPage() {
 
   const formatData = d => {
     if (!d) return [];
-    return d.map(item => ({
-      ...item,
-      //  time: moment(item.time).format('HH:mm:ss'),
-    }));
+    return d.map(
+      item =>
+        console.log(item) || {
+          ...item,
+          time: moment(Number(item.time)).format('HH:mm:ss'),
+          state: stateMapper[item.state],
+          type: typeMapper[item.type],
+          sync: syncMapper[item.sync],
+        },
+    );
   };
 
   const loading = useMemo(
