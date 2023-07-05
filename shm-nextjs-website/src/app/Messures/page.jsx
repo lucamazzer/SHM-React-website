@@ -7,7 +7,11 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import moment from 'moment';
 
 import { useAppContext } from '@/contexts/appContext';
-import { cancelMeasure, getMeasureStatus } from '@/Services/Measures.api';
+import {
+  cancelMeasure,
+  getMeasureStatus,
+  initMeasure,
+} from '@/Services/Measures.api';
 
 import MyTextfield from '../components/inputs/MyTextfield';
 
@@ -82,12 +86,12 @@ export default function MessurePage() {
       return;
     }
 
-    // const { error } = await initMeasure(payload);
+    const { error } = await initMeasure(payload);
 
-    // if (error) {
-    //   console.log(error);
-    //   toast.error(error.message);
-    // }
+    if (error) {
+      console.log(error);
+      toast.error(error.message);
+    }
     setMeasureInProgress(false);
   }, [duration, nMeasure, sync]);
 
@@ -103,7 +107,6 @@ export default function MessurePage() {
   }, []);
 
   const handleSetnMeasure = event => {
-    console.log('nmeasure', event.target.value);
     const newValue = event.target.value < 1 ? 1 : event.target.value;
     setNmeasure(newValue);
   };
@@ -113,7 +116,6 @@ export default function MessurePage() {
   };
 
   const handleSetMeasureDuration = event => {
-    console.log('duration', event.target.value);
     const newValue = event.target.value < 1 ? 1 : event.target.value;
     setDuration(newValue);
   };

@@ -53,16 +53,13 @@ export default function InfoPage() {
 
   const formatData = d => {
     if (!d) return [];
-    return d.map(
-      item =>
-        console.log(item) || {
-          ...item,
-          time: moment(Number(item.time)).format('HH:mm:ss'),
-          state: stateMapper[item.state],
-          type: typeMapper[item.type],
-          sync: syncMapper[item.sync],
-        },
-    );
+    return d.map(item => ({
+      ...item,
+      time: moment(Number(item.time)).format('HH:mm:ss'),
+      state: stateMapper[item.state],
+      type: typeMapper[item.type],
+      sync: syncMapper[item.sync],
+    }));
   };
 
   const loading = useMemo(
