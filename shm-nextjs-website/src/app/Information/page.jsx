@@ -16,13 +16,15 @@ async function getNodesInformation() {
 
 const tableHeader = [
   'Id',
-  // 'Nombre',
+  'Nombre',
   'IP',
   'Señal',
   'Tipo',
   'Estado de sincornización',
-  'Hora',
+  'Hora interna',
   'Estado',
+  'N Medición',
+  'Tiempo restante [s]',
 ];
 const stateMapper = {
   standby: 'Listo',
@@ -46,6 +48,7 @@ export default function InfoPage() {
     async () => {
       const { data, error } = await getNodesInformation();
       setDate(moment().format('DD/MM/YYYY HH:mm:ss'));
+      console.log(data);
 
       return { data, error };
     },
@@ -59,6 +62,7 @@ export default function InfoPage() {
       state: stateMapper[item.state],
       type: typeMapper[item.type],
       sync: syncMapper[item.sync],
+      name: item.name === 'no_muestreando' ? '-' : item.name,
     }));
   };
 

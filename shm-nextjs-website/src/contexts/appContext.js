@@ -6,8 +6,20 @@ export const AppContext = createContext({});
 export const AppContextProvider = ({ children }) => {
   const [measureInProgress, setMeasureInProgress] = useState(false);
 
+  const [loadingMessage, setLoadingMessage] = React.useState(
+    'Medición en progreso...',
+  );
+  const [currentTimeOutId, setCurrentTimeOutId] = React.useState(null);
   return (
-    <AppContext.Provider value={{ measureInProgress, setMeasureInProgress }}>
+    <AppContext.Provider
+      value={{
+        measureInProgress,
+        setMeasureInProgress,
+        loadingMessage,
+        setLoadingMessage,
+        currentTimeOutId,
+        setCurrentTimeOutId,
+      }}>
       {children}
     </AppContext.Provider>
   );
