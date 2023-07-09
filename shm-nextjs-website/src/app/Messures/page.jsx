@@ -14,6 +14,7 @@ import {
 } from '@/Services/Measures.api';
 
 import MyTextfield from '../components/inputs/MyTextfield';
+import { delay } from '../utils';
 
 export default function MessurePage() {
   const [deleteDay, setDeleteDay] = React.useState(moment());
@@ -23,6 +24,8 @@ export default function MessurePage() {
   const [sync, setSync] = React.useState(true);
   const [duration, setDuration] = React.useState(1);
 
+  const [enableCancel, setEnableCancel] = React.useState(true);
+
   // const [relativeTime, setRelativeTime] = React.useState(1);
   // const [durationUnit, setDurationUnit] = React.useState('m');
   // const [time, setTime] = React.useState(moment());
@@ -30,7 +33,14 @@ export default function MessurePage() {
   // const [relativeTimeUnit, setRelativeTimeUnit] = React.useState('m');
   // const [timeFormat, setTimeFormat] = React.useState('relative');
 
-  const { measureInProgress, setMeasureInProgress } = useAppContext();
+  const {
+    measureInProgress,
+    setMeasureInProgress,
+    loadingMessage,
+    setLoadingMessage,
+    currentTimeOutId,
+    setCurrentTimeOutId,
+  } = useAppContext();
 
   // const formatStartTime = (type, data) => {
   //   if (type === 'relative') {
@@ -72,13 +82,16 @@ export default function MessurePage() {
       timeout,
     };
 
+    setEnableCancel(false);
+    setLoadingMessage('Verificando estado de los nodos...');
     setMeasureInProgress(true);
 
     const { error: measureStateError, data } = await getMeasureStatus(sync);
 
     if (measureStateError || data.status !== 'ok') {
       setMeasureInProgress(false);
-
+      setEnableCancel(true);
+      setLoadingMessage('Medición en progreso...');
       toast.error(
         measureStateError?.message || data?.error || 'error estado nodos',
       );
@@ -86,13 +99,29 @@ export default function MessurePage() {
       return;
     }
 
+    setLoadingMessage('Iniciando Medición...');
     const { error } = await initMeasure(payload);
 
     if (error) {
       console.log(error);
+      setMeasureInProgress(false);
       toast.error(error.message);
     }
-    setMeasureInProgress(false);
+
+    setEnableCancel(true);
+    setLoadingMessage('Esperando Hora de inicio...');
+    await delay(60000); // espero 1 minuto
+    setLoadingMessage('Midiendo...');
+
+    const timeoutMeasure = duration * 60000;
+
+    const timeoutId = setTimeout(async () => {
+      setLoadingMessage('descargando datos...');
+      await delay(20000);
+
+      setMeasureInProgress(false);
+    }, timeoutMeasure);
+    setCurrentTimeOutId(timeoutId);
   }, [duration, nMeasure, sync]);
 
   const handleCancelMeasure = React.useCallback(async () => {
@@ -103,7 +132,8 @@ export default function MessurePage() {
       console.log('error');
       return;
     }
-    setMeasureInProgress(false);
+
+    currentTimeOutId && clearTimeout(currentTimeOutId);
   }, []);
 
   const handleSetnMeasure = event => {
@@ -150,10 +180,13 @@ export default function MessurePage() {
       <h1 className="text-center text-4xl">Control de mediciones</h1>
       {measureInProgress && (
         <div className="flex flex-1 flex-col p-5 mt-5 items-center justify-center bg-gray-200 border-2 border-primary rounded-2xl item-center">
+          <h1>{loadingMessage}</h1>
           <CircularProgress size={64} color="primary" />
-          <Button onClick={handleCancelMeasure} className="mt-10">
-            Cancelar
-          </Button>
+          {enableCancel && (
+            <Button onClick={handleCancelMeasure} className="mt-10">
+              Cancelar
+            </Button>
+          )}
         </div>
       )}
       {!measureInProgress && (
