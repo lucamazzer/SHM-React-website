@@ -10,6 +10,9 @@ export const AppContextProvider = ({ children }) => {
     'Medición en progreso...',
   );
   const [currentTimeOutId, setCurrentTimeOutId] = React.useState(null);
+
+  const [showClock, setShowClock] = React.useState(null);
+
   return (
     <AppContext.Provider
       value={{
@@ -19,6 +22,8 @@ export const AppContextProvider = ({ children }) => {
         setLoadingMessage,
         currentTimeOutId,
         setCurrentTimeOutId,
+        showClock,
+        setShowClock,
       }}>
       {children}
     </AppContext.Provider>

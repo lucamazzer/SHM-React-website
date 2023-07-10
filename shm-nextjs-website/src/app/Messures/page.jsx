@@ -1,5 +1,6 @@
 'use client';
 import * as React from 'react';
+import { CountdownCircleTimer } from 'react-countdown-circle-timer';
 import toast from 'react-hot-toast';
 import { Button, CircularProgress, Switch } from '@mui/material';
 import Box from '@mui/material/Box';
@@ -40,6 +41,8 @@ export default function MessurePage() {
     setLoadingMessage,
     currentTimeOutId,
     setCurrentTimeOutId,
+    showClock,
+    setShowClock,
   } = useAppContext();
 
   // const formatStartTime = (type, data) => {
@@ -112,13 +115,14 @@ export default function MessurePage() {
     setLoadingMessage('Esperando Hora de inicio...');
     await delay(60000); // espero 1 minuto
     setLoadingMessage('Midiendo...');
+    setShowClock(true);
 
     const timeoutMeasure = duration * 60000;
 
     const timeoutId = setTimeout(async () => {
       setLoadingMessage('descargando datos...');
+      setShowClock(false);
       await delay(20000);
-
       setMeasureInProgress(false);
     }, timeoutMeasure);
     setCurrentTimeOutId(timeoutId);
@@ -126,6 +130,7 @@ export default function MessurePage() {
 
   const handleCancelMeasure = React.useCallback(async () => {
     setMeasureInProgress(false);
+    setShowClock(false);
 
     const { error } = await cancelMeasure();
     if (error) {
@@ -180,8 +185,25 @@ export default function MessurePage() {
       <h1 className="text-center text-4xl">Control de mediciones</h1>
       {measureInProgress && (
         <div className="flex flex-1 flex-col p-5 mt-5 items-center justify-center bg-gray-200 border-2 border-primary rounded-2xl item-center">
-          <h1>{loadingMessage}</h1>
-          <CircularProgress size={64} color="primary" />
+          <h1 className="mb-5 text-2xl">{loadingMessage}</h1>
+          {!showClock && <CircularProgress size={64} color="primary" />}
+
+          {!!showClock && (
+            <div>
+              <CountdownCircleTimer
+                isPlaying={showClock}
+                duration={duration * 60}
+                colors={['#0095DA', '#0095DA', '#0095DA', '#0095DA']}>
+                {({ remainingTime }) => (
+                  <div className="flex flex-col items-center">
+                    <h1 className="text-4xl text-primary">{remainingTime}</h1>
+                    <h1 className="text-2xl text-primary">Segundos</h1>
+                  </div>
+                )}
+              </CountdownCircleTimer>
+            </div>
+          )}
+
           {enableCancel && (
             <Button onClick={handleCancelMeasure} className="mt-10">
               Cancelar
