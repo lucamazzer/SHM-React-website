@@ -56,7 +56,14 @@ export default function InfoPage() {
 
   const formatData = d => {
     if (!d) return [];
-    return d.map(item => ({
+
+    const uniqueData = [...new Set(d.map(item => item.id))].map(id => {
+      const filtered = d.filter(item => item.id === id);
+      const last = filtered[filtered.length - 1];
+      return last;
+    });
+
+    return uniqueData?.map(item => ({
       ...item,
       time: moment(Number(item.time)).format('HH:mm:ss'),
       state: stateMapper[item.state],
