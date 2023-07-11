@@ -11,6 +11,7 @@ import dynamic from 'next/dynamic';
 
 import { getGraphData } from '@/Services/graphics';
 
+import Loader from '../components/Loader';
 import MySelect from '../components/MySelect';
 
 const LineChart = dynamic(() => import('../components/LineChart'), {
@@ -41,6 +42,7 @@ const graphicOptions = Object.keys(tiposGraphicos).map(key => ({
 export default function GraphicsPage() {
   const [data, setData] = React.useState(null);
   const [dataToShow, setDataToShow] = React.useState(null);
+  const [loading, setLoading] = React.useState(false);
 
   const [nodesToShow, setNodesToShow] = React.useState({});
 
@@ -119,16 +121,19 @@ export default function GraphicsPage() {
 
   const handleGetGraphicsData = async () => {
     const id = `${moment(day).format('DDMMYYYY')}_${nMeasure}`;
+    setLoading(true);
     const response = await getGraphData(nMeasure);
 
     if (response.error) {
-      console.log(response.error);
+      setLoading(false);
       toast.error(response.error.message);
+
       return;
     }
     const dataFormatted = formatData(response.data.data);
     setData(dataFormatted);
     setDataToShow(dataFormatted);
+    setLoading(false);
   };
 
   const options = useMemo(
@@ -204,9 +209,12 @@ export default function GraphicsPage() {
           Obtener medición
         </Button>
       </div>
+      <div className="flex items-center mt-10">
+        <Loader loading={loading} color="primary" />
+      </div>
       <div
         className={classNames(
-          { hidden: !(data && data?.length > 0) },
+          { hidden: !(data && data?.length > 0) || loading },
           'flex p-5 mt-5 items-center justify-center bg-gray-200 border-2 border-primary rounded-2xl item-center ',
         )}>
         <div className="flex flex-col">
