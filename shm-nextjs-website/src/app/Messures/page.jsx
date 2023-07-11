@@ -26,6 +26,7 @@ export default function MessurePage() {
   const [duration, setDuration] = React.useState(1);
 
   const [enableCancel, setEnableCancel] = React.useState(true);
+  const [timer, setTimer] = React.useState(0);
 
   // const [relativeTime, setRelativeTime] = React.useState(1);
   // const [durationUnit, setDurationUnit] = React.useState('m');
@@ -33,6 +34,8 @@ export default function MessurePage() {
   // const [day, setDay] = React.useState(moment());
   // const [relativeTimeUnit, setRelativeTimeUnit] = React.useState('m');
   // const [timeFormat, setTimeFormat] = React.useState('relative');
+
+  const shouldUseEffect = React.useRef(true);
 
   const {
     measureInProgress,
@@ -44,6 +47,37 @@ export default function MessurePage() {
     showClock,
     setShowClock,
   } = useAppContext();
+
+  const checkMeasureIsInProgress = React.useCallback(async () => {
+    const { error: measureStateError, data } = await getMeasureStatus(sync);
+
+    if (measureStateError || data.status !== 'measureInProgress') {
+      return;
+    }
+    setLoadingMessage('Medición en progreso...');
+    setMeasureInProgress(true);
+    setEnableCancel(true);
+    const timeLeft = (Number(data?.data?.[0]?.tLeft || 0) * 100) / 100;
+
+    setTimer(timeLeft);
+    const timeoutMeasure = timeLeft * 1000;
+    console.log(data);
+    const timeoutId = setTimeout(async () => {
+      setLoadingMessage('descargando datos...');
+      setShowClock(false);
+      await delay(20000);
+      setTimer(0);
+      setMeasureInProgress(false);
+    }, timeoutMeasure);
+    setCurrentTimeOutId(timeoutId);
+  }, [sync]);
+
+  React.useEffect(() => {
+    if (shouldUseEffect.current) {
+      checkMeasureIsInProgress();
+      shouldUseEffect.current = false;
+    }
+  }, []);
 
   // const formatStartTime = (type, data) => {
   //   if (type === 'relative') {
@@ -92,9 +126,24 @@ export default function MessurePage() {
     const { error: measureStateError, data } = await getMeasureStatus(sync);
 
     if (measureStateError || data.status !== 'ok') {
-      setMeasureInProgress(false);
-      setEnableCancel(true);
-      setLoadingMessage('Medición en progreso...');
+      const measureInProgress = data?.status === 'measureInProgress';
+      if (measureInProgress) {
+        setMeasureInProgress(measureInProgress);
+        setEnableCancel(measureInProgress);
+        setShowClock(true);
+        const timeLeft = (Number(data?.data?.[0]?.tLeft || 0) * 100) / 100;
+        setTimer(timeLeft);
+        setLoadingMessage('Medición en progreso...');
+        const timeoutMeasure = timeLeft * 1000;
+        const timeoutId = setTimeout(async () => {
+          setLoadingMessage('descargando datos...');
+          setShowClock(false);
+          await delay(20000);
+          setTimer(0);
+          setMeasureInProgress(false);
+        }, timeoutMeasure);
+        setCurrentTimeOutId(timeoutId);
+      }
       toast.error(
         measureStateError?.message || data?.error || 'error estado nodos',
       );
@@ -114,15 +163,18 @@ export default function MessurePage() {
     setEnableCancel(true);
     setLoadingMessage('Esperando Hora de inicio...');
     await delay(60000); // espero 1 minuto
-    setLoadingMessage('Midiendo...');
-    setShowClock(true);
 
     const timeoutMeasure = duration * 60000;
+    setTimer(timeoutMeasure / 1000);
+
+    setLoadingMessage('Midiendo...');
+    setShowClock(true);
 
     const timeoutId = setTimeout(async () => {
       setLoadingMessage('descargando datos...');
       setShowClock(false);
       await delay(20000);
+      setTimer(0);
       setMeasureInProgress(false);
     }, timeoutMeasure);
     setCurrentTimeOutId(timeoutId);
@@ -192,7 +244,7 @@ export default function MessurePage() {
             <div>
               <CountdownCircleTimer
                 isPlaying={showClock}
-                duration={duration * 60}
+                duration={timer}
                 colors={['#0095DA', '#0095DA', '#0095DA', '#0095DA']}>
                 {({ remainingTime }) => (
                   <div className="flex flex-col items-center">
@@ -328,12 +380,12 @@ export default function MessurePage() {
               variant="contained">
               Iniciar medición
             </Button>
-            <Button
+            {/* <Button
               onClick={handleCancelMeasure}
               className="!mt-5 bg-primary hover:bg-blue-700"
               variant="contained">
               Cancelar medición
-            </Button>
+            </Button> */}
           </div>
           <div className="flex flex-col p-5 mt-5 items-center bg-gray-200 border-2 border-primary rounded-2xl item-center ">
             <h1 className="text-center text-2xl">Borrar mediciones</h1>
