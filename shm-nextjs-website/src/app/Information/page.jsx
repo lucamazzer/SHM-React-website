@@ -41,6 +41,14 @@ const typeMapper = {
   nodo_acelerometro: 'Acelerómetro',
 };
 
+const formatRssi = rssi => {
+  if (rssi > -50) return 'Excelente';
+  if (rssi > -60) return 'Bueno';
+  if (rssi > -70) return 'Regular';
+  if (rssi > -85) return 'Malo';
+  return 'Muy malo';
+};
+
 export default function InfoPage() {
   const [date, setDate] = useState(null);
   const { data, error, isValidating, mutate } = useSWR(
@@ -70,6 +78,7 @@ export default function InfoPage() {
       type: typeMapper[item.type],
       sync: syncMapper[item.sync],
       name: item.name === 'no_muestreando' ? '-' : item.name,
+      rssi: formatRssi(item.rssi),
     }));
   };
 
