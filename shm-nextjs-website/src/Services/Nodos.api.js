@@ -11,7 +11,7 @@ export const restartNodes = async () => {
 
 export const getNodesStates = async () => {
   try {
-    const { data, error } = await api.get('estados_nodos');
+    const { data, error } = await api.get('actualizar_estados');
     return { data, error };
   } catch (error) {
     return { error };

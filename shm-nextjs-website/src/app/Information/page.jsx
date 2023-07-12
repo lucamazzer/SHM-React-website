@@ -16,14 +16,30 @@ async function getNodesInformation() {
 
 const tableHeader = [
   'Id',
-  // 'Nombre',
+  'Nombre',
   'IP',
   'Señal',
   'Tipo',
   'Estado de sincornización',
-  'Hora',
+  'Hora interna',
   'Estado',
+  'N Medición',
+  'Tiempo restante [s]',
 ];
+const stateMapper = {
+  standby: 'Listo',
+  muestreando: 'Midiendo',
+  esperando_hora_inicio: 'Esperando para iniciar',
+};
+
+const syncMapper = {
+  sincronizado: 'Sincronizado',
+  no_sincronizado: 'No sincronizado',
+};
+
+const typeMapper = {
+  nodo_acelerometro: 'Acelerómetro',
+};
 
 export default function InfoPage() {
   const [date, setDate] = useState(null);
@@ -32,6 +48,7 @@ export default function InfoPage() {
     async () => {
       const { data, error } = await getNodesInformation();
       setDate(moment().format('DD/MM/YYYY HH:mm:ss'));
+      console.log(data);
 
       return { data, error };
     },
@@ -39,9 +56,20 @@ export default function InfoPage() {
 
   const formatData = d => {
     if (!d) return [];
-    return d.map(item => ({
+
+    const uniqueData = [...new Set(d.map(item => item.id))].map(id => {
+      const filtered = d.filter(item => item.id === id);
+      const last = filtered[filtered.length - 1];
+      return last;
+    });
+
+    return uniqueData?.map(item => ({
       ...item,
-      //  time: moment(item.time).format('HH:mm:ss'),
+      time: moment(Number(item.time)).format('HH:mm:ss'),
+      state: stateMapper[item.state],
+      type: typeMapper[item.type],
+      sync: syncMapper[item.sync],
+      name: item.name === 'no_muestreando' ? '-' : item.name,
     }));
   };
 

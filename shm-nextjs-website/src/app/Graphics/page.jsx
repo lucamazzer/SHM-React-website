@@ -2,22 +2,16 @@
 
 import React, { useCallback, useEffect, useMemo } from 'react';
 import toast from 'react-hot-toast';
-import {
-  Button,
-  FormControlLabel,
-  TextField,
-  ThemeProvider,
-} from '@mui/material';
+import { Button, FormControlLabel, TextField } from '@mui/material';
 import Checkbox from '@mui/material/Checkbox';
-import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
-import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment';
+import { DatePicker } from '@mui/x-date-pickers';
 import classNames from 'classnames';
 import moment from 'moment';
 import dynamic from 'next/dynamic';
 
 import { getGraphData } from '@/Services/graphics';
 
-import theme from '../../styles/mui-theme';
+import Loader from '../components/Loader';
 import MySelect from '../components/MySelect';
 
 const LineChart = dynamic(() => import('../components/LineChart'), {
@@ -48,6 +42,7 @@ const graphicOptions = Object.keys(tiposGraphicos).map(key => ({
 export default function GraphicsPage() {
   const [data, setData] = React.useState(null);
   const [dataToShow, setDataToShow] = React.useState(null);
+  const [loading, setLoading] = React.useState(false);
 
   const [nodesToShow, setNodesToShow] = React.useState({});
 
@@ -126,16 +121,19 @@ export default function GraphicsPage() {
 
   const handleGetGraphicsData = async () => {
     const id = `${moment(day).format('DDMMYYYY')}_${nMeasure}`;
+    setLoading(true);
     const response = await getGraphData(nMeasure);
 
     if (response.error) {
-      console.log(response.error);
+      setLoading(false);
       toast.error(response.error.message);
+
       return;
     }
     const dataFormatted = formatData(response.data.data);
     setData(dataFormatted);
     setDataToShow(dataFormatted);
+    setLoading(false);
   };
 
   const options = useMemo(
@@ -174,68 +172,67 @@ export default function GraphicsPage() {
   );
 
   return (
-    <ThemeProvider theme={theme}>
-      <LocalizationProvider dateAdapter={AdapterMoment}>
-        <div className="h-full p-5 bg-gray-300">
-          <h1 className="text-center text-4xl">Graficar Mediciones</h1>
-          <div className="flex flex-col p-5 mt-5 items-center justify-center bg-gray-200 border-2 border-primary rounded-2xl">
-            <div className="flex my-5 items-center">
-              <TextField
-                type="number"
-                id="id-medicion"
-                label="Nombre de la medicion"
-                variant="outlined"
-                required
-                value={nMeasure}
-                onChange={handleSetnMeasure}
-              />
-              <div className="ml-5">
-                <DatePicker
-                  color="primary"
-                  label="Fecha de la medición"
-                  value={day}
-                  onChange={newValue => setDay(newValue)}
-                />
-              </div>
-            </div>
-
-            <MySelect
-              options={graphicOptions}
-              title={'Tipo de grafico'}
+    <div className="h-full p-5 bg-gray-300">
+      <h1 className="text-center text-4xl">Graficar Mediciones</h1>
+      <div className="flex flex-col p-5 mt-5 items-center justify-center bg-gray-200 border-2 border-primary rounded-2xl">
+        <div className="flex my-5 items-center">
+          <TextField
+            type="number"
+            id="id-medicion"
+            label="Nombre de la medicion"
+            variant="outlined"
+            required
+            value={nMeasure}
+            onChange={handleSetnMeasure}
+          />
+          <div className="ml-5">
+            <DatePicker
               color="primary"
-              value={graphOpt}
-              onChange={handleChange}
+              label="Fecha de la medición"
+              value={day}
+              onChange={newValue => setDay(newValue)}
             />
-            <Button
-              onClick={handleGetGraphicsData}
-              variant="contained"
-              className="bg-primary hover:bg-blue-700">
-              Obtener medición
-            </Button>
-          </div>
-          <div
-            className={classNames(
-              { hidden: !(data && data?.length > 0) },
-              'flex p-5 mt-5 items-center justify-center bg-gray-200 border-2 border-primary rounded-2xl item-center ',
-            )}>
-            <div className="flex flex-col">
-              {Object.keys(nodesToShow)?.map(item => (
-                <FormControlLabel
-                  key={item}
-                  label={`${item}`}
-                  control={
-                    <Checkbox
-                      checked={nodesToShow[item]}
-                      onChange={e => handleCheck(item, e.target.checked)}
-                    />
-                  }
-                />
-              ))}
-            </div>
-            <LineChart options={options} />
           </div>
         </div>
-      </LocalizationProvider>
-    </ThemeProvider>
+
+        <MySelect
+          options={graphicOptions}
+          title={'Tipo de grafico'}
+          color="primary"
+          value={graphOpt}
+          onChange={handleChange}
+        />
+        <Button
+          onClick={handleGetGraphicsData}
+          variant="contained"
+          className="bg-primary hover:bg-blue-700">
+          Obtener medición
+        </Button>
+      </div>
+      <div className="flex items-center mt-10">
+        <Loader loading={loading} color="primary" />
+      </div>
+      <div
+        className={classNames(
+          { hidden: !(data && data?.length > 0) || loading },
+          'flex p-5 mt-5 items-center justify-center bg-gray-200 border-2 border-primary rounded-2xl item-center ',
+        )}>
+        <div className="flex flex-col">
+          {Object.keys(nodesToShow)?.map(item => (
+            <FormControlLabel
+              key={item}
+              label={`${item}`}
+              control={
+                <Checkbox
+                  checked={nodesToShow[item]}
+                  onChange={e => handleCheck(item, e.target.checked)}
+                />
+              }
+            />
+          ))}
+        </div>
+        <LineChart options={options} />
+      </div>
+    </div>
   );
 }
