@@ -111,7 +111,7 @@ export default function MessurePage() {
     const timeout = duration * 60000 + 1 * 60000 + 60000;
 
     const payload = {
-      // id: today + '-' + nMeasure,
+      // id: today + '-' + ('00' + nMeasure).slice(-3),
       id: nMeasure,
       duration,
       sync,
@@ -194,7 +194,12 @@ export default function MessurePage() {
   }, []);
 
   const handleSetnMeasure = event => {
-    const newValue = event.target.value < 1 ? 1 : event.target.value;
+    const newValue =
+      event.target.value < 1
+        ? 1
+        : event.target.value > 999
+        ? 999
+        : event.target.value;
     setNmeasure(newValue);
   };
   const handleSetnDelMeasure = event => {
@@ -203,7 +208,12 @@ export default function MessurePage() {
   };
 
   const handleSetMeasureDuration = event => {
-    const newValue = event.target.value < 1 ? 1 : event.target.value;
+    const newValue =
+      event.target.value < 1
+        ? 1
+        : event.target.value > 60
+        ? 60
+        : event.target.value;
     setDuration(newValue);
   };
 
