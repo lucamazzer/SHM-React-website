@@ -73,7 +73,7 @@ export default function InfoPage() {
 
     return uniqueData?.map(item => ({
       ...item,
-      time: moment(Number(item.time)).format('HH:mm:ss'),
+      time: moment.unix(Number(item.time) / 1000000).format('HH:mm:ss'),
       state: stateMapper[item.state],
       type: typeMapper[item.type],
       sync: syncMapper[item.sync],
