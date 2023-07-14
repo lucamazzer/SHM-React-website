@@ -8,6 +8,7 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import moment from 'moment';
 
 import { useAppContext } from '@/contexts/appContext';
+import { deleteAllMeasure, deleteMeasure } from '@/Services/Data.api';
 import {
   cancelMeasure,
   getMeasureStatus,
@@ -112,7 +113,7 @@ export default function MessurePage() {
 
     const payload = {
       // id: today + '-' + ('00' + nMeasure).slice(-3),
-      id: nMeasure,
+      id: ('00' + nMeasure).slice(-3),
       duration,
       sync,
       startTime,
@@ -241,6 +242,27 @@ export default function MessurePage() {
   };
 
   */
+  const handleDeleteAllMeasure = React.useCallback(async () => {
+    const { error } = await deleteAllMeasure();
+    if (error) {
+      console.log(error);
+      toast.error(error.message);
+      return;
+    }
+    toast.success('Mediciones borradas');
+  }, []);
+
+  const handleDeleteMeasure = React.useCallback(async () => {
+    const id = ('00' + nDelMeasure).slice(-3);
+
+    const { error } = await deleteMeasure(id);
+    if (error) {
+      console.log(error);
+      toast.error(error.message);
+      return;
+    }
+    toast.success('Medición borrada');
+  }, [nDelMeasure]);
 
   return (
     <div className="flex flex-col flex-1 p-5 bg-gray-300">
@@ -425,13 +447,13 @@ export default function MessurePage() {
             </Box>
 
             <Button
-              onClick={() => {}}
+              onClick={handleDeleteMeasure}
               className="!mt-5 bg-primary hover:bg-blue-700"
               variant="contained">
               Borrar medicion
             </Button>
             <Button
-              onClick={() => {}}
+              onClick={handleDeleteAllMeasure}
               className="!mt-5 bg-primary hover:bg-blue-700"
               variant="contained">
               Borrar todo
