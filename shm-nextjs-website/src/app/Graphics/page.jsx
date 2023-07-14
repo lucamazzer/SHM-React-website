@@ -124,7 +124,7 @@ export default function GraphicsPage() {
       -3,
     )}`;
     setLoading(true);
-    const response = await getGraphData(nMeasure);
+    const response = await getGraphData(('00' + nMeasure).slice(-3));
 
     if (response.error) {
       setLoading(false);

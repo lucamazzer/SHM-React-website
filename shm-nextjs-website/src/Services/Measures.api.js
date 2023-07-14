@@ -32,10 +32,11 @@ export const cancelMeasure = async id => {
   }
 };
 
-export const getMeasureStatus = async sync => {
+export const getMeasureStatus = async (sync, measureId) => {
   try {
     const { data, error } = await api.post('check_measure_status', {
       sync,
+      nro_muestreo: measureId,
     });
     return { data, error };
   } catch (error) {

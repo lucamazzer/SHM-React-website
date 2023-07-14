@@ -124,7 +124,10 @@ export default function MessurePage() {
     setLoadingMessage('Verificando estado de los nodos...');
     setMeasureInProgress(true);
 
-    const { error: measureStateError, data } = await getMeasureStatus(sync);
+    const { error: measureStateError, data } = await getMeasureStatus(
+      sync,
+      payload.id,
+    );
 
     if (measureStateError || data.status !== 'ok') {
       const measureInProgress = data?.status === 'measureInProgress';
@@ -144,6 +147,8 @@ export default function MessurePage() {
           setMeasureInProgress(false);
         }, timeoutMeasure);
         setCurrentTimeOutId(timeoutId);
+      } else {
+        setMeasureInProgress(false);
       }
       toast.error(
         measureStateError?.message || data?.error || 'error estado nodos',
@@ -162,8 +167,8 @@ export default function MessurePage() {
     }
 
     setEnableCancel(true);
-    setLoadingMessage('Esperando Hora de inicio...');
-    await delay(60000); // espero 1 minuto
+    sync && setLoadingMessage('Esperando Hora de inicio...');
+    sync && (await delay(55000)); // espero 1 minuto
 
     const timeoutMeasure = duration * 60000;
     setTimer(timeoutMeasure / 1000);
