@@ -28,6 +28,7 @@ export default function MessurePage() {
 
   const [enableCancel, setEnableCancel] = React.useState(true);
   const [timer, setTimer] = React.useState(0);
+  const [comment, setComment] = React.useState('');
 
   // const [relativeTime, setRelativeTime] = React.useState(1);
   // const [durationUnit, setDurationUnit] = React.useState('m');
@@ -47,6 +48,7 @@ export default function MessurePage() {
     setCurrentTimeOutId,
     showClock,
     setShowClock,
+    cleanMeasureState,
   } = useAppContext();
 
   const checkMeasureIsInProgress = React.useCallback(async () => {
@@ -62,7 +64,7 @@ export default function MessurePage() {
 
     setTimer(timeLeft);
     const timeoutMeasure = timeLeft * 1000;
-    console.log(data);
+
     const timeoutId = setTimeout(async () => {
       setLoadingMessage('descargando datos...');
       setShowClock(false);
@@ -118,6 +120,7 @@ export default function MessurePage() {
       sync,
       startTime,
       timeout,
+      comment,
     };
 
     setEnableCancel(false);
@@ -184,11 +187,10 @@ export default function MessurePage() {
       setMeasureInProgress(false);
     }, timeoutMeasure);
     setCurrentTimeOutId(timeoutId);
-  }, [duration, nMeasure, sync]);
+  }, [duration, nMeasure, sync, comment]);
 
   const handleCancelMeasure = React.useCallback(async () => {
-    setMeasureInProgress(false);
-    setShowClock(false);
+    cleanMeasureState();
 
     const { error } = await cancelMeasure();
     if (error) {
@@ -221,6 +223,10 @@ export default function MessurePage() {
         ? 60
         : event.target.value;
     setDuration(newValue);
+  };
+
+  const handleSetComment = event => {
+    setComment(event.target.value);
   };
 
   // const handleDurationUnit = event => {
@@ -313,7 +319,7 @@ export default function MessurePage() {
                 <MyTextfield
                   type="number"
                   id="id-medicion"
-                  label="Nombre de la medicion"
+                  label="Nombre de la medición"
                   variant="outlined"
                   required
                   value={nMeasure}
@@ -337,7 +343,7 @@ export default function MessurePage() {
                 <MyTextfield
                   type="number"
                   id="outlined-basic"
-                  label="duración de la medicion"
+                  label="duración de la medición"
                   variant="outlined"
                   onChange={handleSetMeasureDuration}
                   value={duration}
@@ -410,6 +416,27 @@ export default function MessurePage() {
                       )}
                     </div>
                   )} */}
+              <div className="flex flex-col mt-5">
+                <h1 className="text-primary font-medium mb-4">
+                  Comentarios (optional){' '}
+                </h1>
+                <MyTextfield
+                  id="id-comment"
+                  label="Comentarios de la medición"
+                  variant="outlined"
+                  multiline
+                  onChange={handleSetComment}
+                  value={comment}
+                />
+                {/* <div className="ml-5">
+                      <MyRadioGroup
+                        title={'Unidad duración'}
+                        options={unitsOptions}
+                        value={durationUnit}
+                        onChange={handleDurationUnit}
+                      />
+                    </div> */}
+              </div>
             </Box>
             <Button
               onClick={handleMakeMeasure}
