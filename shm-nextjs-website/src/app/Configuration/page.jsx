@@ -1,14 +1,15 @@
 'use client';
 import * as React from 'react';
-import { Button } from '@mui/material';
+import { toast } from 'react-hot-toast';
+import { Button, Fade, Tooltip } from '@mui/material';
 import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
 
 import { useAppContext } from '@/contexts/appContext';
 import { configSystem } from '@/Services/Configuration.api';
-import { cancelMeasure } from '@/Services/Measures.api';
 import { eraseSD } from '@/Services/Data.api';
-import { toast } from 'react-hot-toast';
+import { cancelMeasure } from '@/Services/Measures.api';
+import { restartNodes } from '@/Services/Nodos.api';
 
 export default function ConfigurationPage() {
   const [ip, setIP] = React.useState('');
@@ -45,6 +46,15 @@ export default function ConfigurationPage() {
     }
     toast.success('Tarjetas SD borradas correctamente');
   }, [user, psw, ip]);
+
+  const handleResetNodes = React.useCallback(async () => {
+    const { error } = await restartNodes();
+    if (error) {
+      toast.error('Error al reinciar los nodos');
+      return;
+    }
+    toast.success('Nodos reiniciados correctamente');
+  }, []);
 
   return (
     <div className="flex flex-col bg-gray-300 text-black text-center h-full items-center ">
@@ -89,12 +99,17 @@ export default function ConfigurationPage() {
       </div>
       <div className="flex flex-col p-5 mt-5 items-center justify-center bg-gray-200 border-2 border-primary rounded-2xl item-center ">
         <h1 className="text-center text-2xl mb-5">Acciones de emergencia</h1>
-        <Button
-          className="bg-primary hover:bg-blue-700"
-          variant="contained"
-          onClick={saveBrocker}>
-          Reiniciar nodos
-        </Button>
+        <Tooltip
+          TransitionComponent={Fade}
+          TransitionProps={{ timeout: 600 }}
+          title="Al reiniciar los nodos se perdera el sincronismo de los mismos">
+          <Button
+            className="bg-primary hover:bg-blue-700"
+            variant="contained"
+            onClick={handleResetNodes}>
+            Reiniciar nodos
+          </Button>
+        </Tooltip>
         <Button
           className="bg-primary hover:bg-blue-700 mt-5"
           variant="contained"
