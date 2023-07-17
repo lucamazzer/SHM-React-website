@@ -411,6 +411,7 @@ export default function MessurePage() {
                         <div className="flex w-full mt-5 items-center">
                           <DatePicker
                             color="primary"
+                            format="DD/MM/YYYY"
                             value={day}
                             label="Fecha de incio de la medición"
                             onChange={newValue => setDay(newValue)}
@@ -506,6 +507,7 @@ export default function MessurePage() {
                 color="primary"
                 label="Fecha de la medición"
                 required
+                format="DD/MM/YYYY"
                 value={deleteDay}
                 onChange={newValue => setDeleteDay(newValue)}
               />
