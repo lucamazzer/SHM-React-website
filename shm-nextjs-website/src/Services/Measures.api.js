@@ -6,6 +6,7 @@ export const initMeasure = async ({
   id,
   sync,
   timeout,
+  comment,
 }) => {
   try {
     const { data, error } = await api.post('init_measure', {
@@ -14,6 +15,7 @@ export const initMeasure = async ({
       nro_muestreo: id,
       sync,
       timeout,
+      comment,
     });
     return { data, error };
   } catch (error) {

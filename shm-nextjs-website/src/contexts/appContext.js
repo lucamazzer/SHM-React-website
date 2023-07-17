@@ -13,6 +13,12 @@ export const AppContextProvider = ({ children }) => {
 
   const [showClock, setShowClock] = React.useState(null);
 
+  const cleanMeasureState = () => {
+    setMeasureInProgress(false);
+    setLoadingMessage('Medición en progreso...');
+    setShowClock(null);
+  };
+
   return (
     <AppContext.Provider
       value={{
@@ -24,6 +30,7 @@ export const AppContextProvider = ({ children }) => {
         setCurrentTimeOutId,
         showClock,
         setShowClock,
+        cleanMeasureState,
       }}>
       {children}
     </AppContext.Provider>

@@ -4,25 +4,51 @@ import { Button } from '@mui/material';
 import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
 
+import { useAppContext } from '@/contexts/appContext';
 import { configSystem } from '@/Services/Configuration.api';
+import { cancelMeasure } from '@/Services/Measures.api';
+import { eraseSD } from '@/Services/Data.api';
+import { toast } from 'react-hot-toast';
 
 export default function ConfigurationPage() {
   const [ip, setIP] = React.useState('');
   const [user, setUser] = React.useState('');
   const [psw, setPsw] = React.useState('');
+  const { currentTimeOutId, cleanMeasureState } = useAppContext();
 
   const saveBrocker = React.useCallback(async () => {
     const { error } = await configSystem(user, psw, ip);
     if (error) {
-      alert('Error al guardar la configuración');
+      toast.error('Error al guardar la configuración');
       return;
     }
-    alert('Configuración guardada correctamente');
+    toast.success('Configuración guardada correctamente');
+  }, [user, psw, ip]);
+
+  const handleCancelMeasure = React.useCallback(async () => {
+    cleanMeasureState();
+
+    const { error } = await cancelMeasure();
+    if (error) {
+      console.log('error');
+      return;
+    }
+
+    currentTimeOutId && clearTimeout(currentTimeOutId);
+  }, []);
+
+  const handleCleanSD = React.useCallback(async () => {
+    const { error } = await eraseSD();
+    if (error) {
+      toast.error('Error al borrar la sd');
+      return;
+    }
+    toast.success('Tarjetas SD borradas correctamente');
   }, [user, psw, ip]);
 
   return (
     <div className="flex flex-col bg-gray-300 text-black text-center h-full items-center ">
-      <h1 className="text-center text-4xl my-10">Configuración Broker</h1>
+      <h1 className="text-center text-4xl my-10">Configuración</h1>
       <div className="flex flex-col p-5 mt-5 items-center justify-center bg-gray-200 border-2 border-primary rounded-2xl item-center ">
         <Box
           component="form"
@@ -60,6 +86,27 @@ export default function ConfigurationPage() {
             Guardar
           </Button>
         </Box>
+      </div>
+      <div className="flex flex-col p-5 mt-5 items-center justify-center bg-gray-200 border-2 border-primary rounded-2xl item-center ">
+        <h1 className="text-center text-2xl mb-5">Acciones de emergencia</h1>
+        <Button
+          className="bg-primary hover:bg-blue-700"
+          variant="contained"
+          onClick={saveBrocker}>
+          Reiniciar nodos
+        </Button>
+        <Button
+          className="bg-primary hover:bg-blue-700 mt-5"
+          variant="contained"
+          onClick={handleCancelMeasure}>
+          Cancelar mediciones
+        </Button>
+        <Button
+          className="bg-primary hover:bg-blue-700 mt-5"
+          variant="contained"
+          onClick={handleCleanSD}>
+          Borrar tarjetas SD
+        </Button>
       </div>
     </div>
   );

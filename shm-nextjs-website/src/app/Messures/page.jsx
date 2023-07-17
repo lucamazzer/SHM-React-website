@@ -8,7 +8,11 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import moment from 'moment';
 
 import { useAppContext } from '@/contexts/appContext';
-import { deleteAllMeasure, deleteMeasure } from '@/Services/Data.api';
+import {
+  deleteAllMeasure,
+  deleteMeasure,
+  generateCsv,
+} from '@/Services/Data.api';
 import {
   cancelMeasure,
   getMeasureStatus,
@@ -28,6 +32,7 @@ export default function MessurePage() {
 
   const [enableCancel, setEnableCancel] = React.useState(true);
   const [timer, setTimer] = React.useState(0);
+  const [comment, setComment] = React.useState('');
 
   // const [relativeTime, setRelativeTime] = React.useState(1);
   // const [durationUnit, setDurationUnit] = React.useState('m');
@@ -47,6 +52,7 @@ export default function MessurePage() {
     setCurrentTimeOutId,
     showClock,
     setShowClock,
+    cleanMeasureState,
   } = useAppContext();
 
   const checkMeasureIsInProgress = React.useCallback(async () => {
@@ -62,7 +68,7 @@ export default function MessurePage() {
 
     setTimer(timeLeft);
     const timeoutMeasure = timeLeft * 1000;
-    console.log(data);
+
     const timeoutId = setTimeout(async () => {
       setLoadingMessage('descargando datos...');
       setShowClock(false);
@@ -118,6 +124,7 @@ export default function MessurePage() {
       sync,
       startTime,
       timeout,
+      comment,
     };
 
     setEnableCancel(false);
@@ -184,11 +191,10 @@ export default function MessurePage() {
       setMeasureInProgress(false);
     }, timeoutMeasure);
     setCurrentTimeOutId(timeoutId);
-  }, [duration, nMeasure, sync]);
+  }, [duration, nMeasure, sync, comment]);
 
   const handleCancelMeasure = React.useCallback(async () => {
-    setMeasureInProgress(false);
-    setShowClock(false);
+    cleanMeasureState();
 
     const { error } = await cancelMeasure();
     if (error) {
@@ -221,6 +227,10 @@ export default function MessurePage() {
         ? 60
         : event.target.value;
     setDuration(newValue);
+  };
+
+  const handleSetComment = event => {
+    setComment(event.target.value);
   };
 
   // const handleDurationUnit = event => {
@@ -269,6 +279,28 @@ export default function MessurePage() {
     toast.success('Medición borrada');
   }, [nDelMeasure]);
 
+  const handleCreateCsvFiles = React.useCallback(async () => {
+    const id = ('00' + nDelMeasure).slice(-3);
+
+    const { error } = await generateCsv(id);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    toast.success('Csv generado');
+  }, [nDelMeasure]);
+
+  // const handleGetMeasureData = React.useCallback(async () => {
+  //   const id = ('00' + nDelMeasure).slice(-3);
+
+  //   const { error } = await generateCsv(id);
+  //   if (error) {
+  //     toast.error(error.message);
+  //     return;
+  //   }
+  //   toast.success('Recoleccion finalizada');
+  // }, [nDelMeasure]);
+
   return (
     <div className="flex flex-col flex-1 p-5 bg-gray-300">
       <h1 className="text-center text-4xl">Control de mediciones</h1>
@@ -313,7 +345,7 @@ export default function MessurePage() {
                 <MyTextfield
                   type="number"
                   id="id-medicion"
-                  label="Nombre de la medicion"
+                  label="Nombre de la medición"
                   variant="outlined"
                   required
                   value={nMeasure}
@@ -337,7 +369,7 @@ export default function MessurePage() {
                 <MyTextfield
                   type="number"
                   id="outlined-basic"
-                  label="duración de la medicion"
+                  label="duración de la medición"
                   variant="outlined"
                   onChange={handleSetMeasureDuration}
                   value={duration}
@@ -410,6 +442,27 @@ export default function MessurePage() {
                       )}
                     </div>
                   )} */}
+              <div className="flex flex-col mt-5">
+                <h1 className="text-primary font-medium mb-4">
+                  Comentarios (optional){' '}
+                </h1>
+                <MyTextfield
+                  id="id-comment"
+                  label="Comentarios de la medición"
+                  variant="outlined"
+                  multiline
+                  onChange={handleSetComment}
+                  value={comment}
+                />
+                {/* <div className="ml-5">
+                      <MyRadioGroup
+                        title={'Unidad duración'}
+                        options={unitsOptions}
+                        value={durationUnit}
+                        onChange={handleDurationUnit}
+                      />
+                    </div> */}
+              </div>
             </Box>
             <Button
               onClick={handleMakeMeasure}
@@ -455,7 +508,7 @@ export default function MessurePage() {
               onClick={handleDeleteMeasure}
               className="!mt-5 bg-primary hover:bg-blue-700"
               variant="contained">
-              Borrar medicion
+              Borrar medición
             </Button>
             <Button
               onClick={handleDeleteAllMeasure}
@@ -463,6 +516,18 @@ export default function MessurePage() {
               variant="contained">
               Borrar todo
             </Button>
+            <Button
+              onClick={handleCreateCsvFiles}
+              className="!mt-5 bg-primary hover:bg-blue-700"
+              variant="contained">
+              Generar csv
+            </Button>
+            {/* <Button
+              onClick={handleGetMeasureData}
+              className="!mt-5 bg-primary hover:bg-blue-700"
+              variant="contained">
+              Recolectar archivos
+            </Button> */}
           </div>
         </div>
       )}
