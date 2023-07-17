@@ -20,7 +20,7 @@ export const deleteMeasure = async id => {
     });
     return { data, error };
   } catch (error) {
-    return { error };
+    return { error: { message: 'Error al borrar la medicione' } };
   }
 };
 export const deleteAllMeasure = async id => {
@@ -28,6 +28,17 @@ export const deleteAllMeasure = async id => {
     const { data, error } = await api.post('erase_all_reading');
     return { data, error };
   } catch (error) {
-    return { error };
+    return { error: { message: 'Error al borrar las mediciones' } };
+  }
+};
+
+export const generateCsv = async id => {
+  try {
+    const { data, error } = await api.post('create_csv', {
+      nro_muestreo: id,
+    });
+    return { data, error };
+  } catch (error) {
+    return { error: { message: 'No se pudo crear los csv' } };
   }
 };

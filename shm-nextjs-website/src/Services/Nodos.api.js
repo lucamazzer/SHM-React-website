@@ -5,7 +5,11 @@ export const restartNodes = async () => {
     const { data, error } = await api.post('reiniciar_nodos');
     return { data, error };
   } catch (error) {
-    return { error };
+    return {
+      error: {
+        message: error?.response?.data?.error || 'error reiniciando nodos',
+      },
+    };
   }
 };
 
@@ -14,6 +18,11 @@ export const getNodesStates = async () => {
     const { data, error } = await api.get('actualizar_estados');
     return { data, error };
   } catch (error) {
-    return { error };
+    return {
+      error: {
+        message:
+          error?.response?.data?.error || 'error obteniendo estado de nodos',
+      },
+    };
   }
 };

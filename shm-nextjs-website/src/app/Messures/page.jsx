@@ -8,7 +8,11 @@ import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import moment from 'moment';
 
 import { useAppContext } from '@/contexts/appContext';
-import { deleteAllMeasure, deleteMeasure } from '@/Services/Data.api';
+import {
+  deleteAllMeasure,
+  deleteMeasure,
+  generateCsv,
+} from '@/Services/Data.api';
 import {
   cancelMeasure,
   getMeasureStatus,
@@ -275,6 +279,28 @@ export default function MessurePage() {
     toast.success('Medición borrada');
   }, [nDelMeasure]);
 
+  const handleCreateCsvFiles = React.useCallback(async () => {
+    const id = ('00' + nDelMeasure).slice(-3);
+
+    const { error } = await generateCsv(id);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    toast.success('Csv generado');
+  }, [nDelMeasure]);
+
+  // const handleGetMeasureData = React.useCallback(async () => {
+  //   const id = ('00' + nDelMeasure).slice(-3);
+
+  //   const { error } = await generateCsv(id);
+  //   if (error) {
+  //     toast.error(error.message);
+  //     return;
+  //   }
+  //   toast.success('Recoleccion finalizada');
+  // }, [nDelMeasure]);
+
   return (
     <div className="flex flex-col flex-1 p-5 bg-gray-300">
       <h1 className="text-center text-4xl">Control de mediciones</h1>
@@ -482,7 +508,7 @@ export default function MessurePage() {
               onClick={handleDeleteMeasure}
               className="!mt-5 bg-primary hover:bg-blue-700"
               variant="contained">
-              Borrar medicion
+              Borrar medición
             </Button>
             <Button
               onClick={handleDeleteAllMeasure}
@@ -490,6 +516,18 @@ export default function MessurePage() {
               variant="contained">
               Borrar todo
             </Button>
+            <Button
+              onClick={handleCreateCsvFiles}
+              className="!mt-5 bg-primary hover:bg-blue-700"
+              variant="contained">
+              Generar csv
+            </Button>
+            {/* <Button
+              onClick={handleGetMeasureData}
+              className="!mt-5 bg-primary hover:bg-blue-700"
+              variant="contained">
+              Recolectar archivos
+            </Button> */}
           </div>
         </div>
       )}
