@@ -6,7 +6,7 @@ const links = [
   { route: '/Messures', label: 'Mediciones' },
   { route: '/Files', label: 'Archivos' },
   { route: '/Graphics', label: 'Graficos' },
-  { route: '/Configuration', label: 'Configuration' },
+  { route: '/Configuration', label: 'Configuraciones' },
   { route: '/about', label: 'Instrucciones' },
 ];
 
