@@ -181,7 +181,7 @@ export default function GraphicsPage() {
           <TextField
             type="number"
             id="id-medicion"
-            label="Nombre de la medicion"
+            label="Numero de medición"
             variant="outlined"
             required
             value={nMeasure}
@@ -191,6 +191,7 @@ export default function GraphicsPage() {
             <DatePicker
               color="primary"
               label="Fecha de la medición"
+              format="DD/MM/YYYY"
               value={day}
               onChange={newValue => setDay(newValue)}
             />
