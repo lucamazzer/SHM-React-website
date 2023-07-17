@@ -2,7 +2,8 @@
 import * as React from 'react';
 import { CountdownCircleTimer } from 'react-countdown-circle-timer';
 import toast from 'react-hot-toast';
-import { Button, CircularProgress, Switch } from '@mui/material';
+import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
+import { Button, CircularProgress, Fade, Switch, Tooltip } from '@mui/material';
 import Box from '@mui/material/Box';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import moment from 'moment';
@@ -345,12 +346,18 @@ export default function MessurePage() {
                 <MyTextfield
                   type="number"
                   id="id-medicion"
-                  label="Nombre de la medición"
+                  label="Numero de la medición"
                   variant="outlined"
                   required
                   value={nMeasure}
                   onChange={e => handleSetnMeasure(e)}
                 />
+                <Tooltip
+                  TransitionComponent={Fade}
+                  TransitionProps={{ timeout: 600 }}
+                  title="El nombre guardado de la medición sera en formato YYYYMMDD-NNN i.e: 20230606-001 correspondiente a la fecha del dia y a  l numero de medición">
+                  <InfoOutlinedIcon className="ml-5" color="primary" />
+                </Tooltip>
               </div>
               <div className="flex mb-5 items-center">
                 <h1 className="text-primary font-medium">
@@ -488,7 +495,7 @@ export default function MessurePage() {
                 <MyTextfield
                   type="number"
                   id="id-medicion"
-                  label="Nombre de la medicion"
+                  label="Numero de la medición"
                   variant="outlined"
                   required
                   value={nDelMeasure}
@@ -503,25 +510,41 @@ export default function MessurePage() {
                 onChange={newValue => setDeleteDay(newValue)}
               />
             </Box>
+            <Tooltip
+              TransitionComponent={Fade}
+              TransitionProps={{ timeout: 600 }}
+              title="Una vez borrada medición no podra ser recuperada">
+              <Button
+                onClick={handleDeleteMeasure}
+                className="!mt-5 bg-primary hover:bg-blue-700"
+                variant="contained">
+                Borrar medición
+              </Button>
+            </Tooltip>
 
-            <Button
-              onClick={handleDeleteMeasure}
-              className="!mt-5 bg-primary hover:bg-blue-700"
-              variant="contained">
-              Borrar medición
-            </Button>
-            <Button
-              onClick={handleDeleteAllMeasure}
-              className="!mt-5 bg-primary hover:bg-blue-700"
-              variant="contained">
-              Borrar todo
-            </Button>
-            <Button
-              onClick={handleCreateCsvFiles}
-              className="!mt-5 bg-primary hover:bg-blue-700"
-              variant="contained">
-              Generar csv
-            </Button>
+            <Tooltip
+              TransitionComponent={Fade}
+              TransitionProps={{ timeout: 600 }}
+              title="Se borraran todas las mediciones y no podran ser recuperadas">
+              <Button
+                onClick={handleDeleteAllMeasure}
+                className="!mt-5 bg-primary hover:bg-blue-700"
+                variant="contained">
+                Borrar todo
+              </Button>
+            </Tooltip>
+            <Tooltip
+              TransitionComponent={Fade}
+              className="flex items-center"
+              TransitionProps={{ timeout: 600 }}
+              title="Los archivos deberian estar ya creados una vez finalizada la medición, esta opcion debe ser utilizada solo si fallo por alguna razon.">
+              <Button
+                onClick={handleCreateCsvFiles}
+                className="!mt-5 bg-primary hover:bg-blue-700"
+                variant="contained">
+                Generar csv
+              </Button>
+            </Tooltip>
             {/* <Button
               onClick={handleGetMeasureData}
               className="!mt-5 bg-primary hover:bg-blue-700"
