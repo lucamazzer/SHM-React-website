@@ -114,7 +114,7 @@ export default function MessurePage() {
     //     })
     //   : undefined;
 
-    const startTime = sync ? moment().add(1, 'm').unix() : undefined;
+    // const startTime = sync ? moment().add(1, 'm').unix() : undefined; // como la hra de la raspi y el local es distinto hay q mandar el relativo.
 
     const timeout = duration * 60000 + 1 * 60000 + 60000;
 
@@ -123,7 +123,7 @@ export default function MessurePage() {
       id: ('00' + nMeasure).slice(-3),
       duration,
       sync,
-      startTime,
+      startTime: sync ? 1 : undefined,
       timeout,
       comment,
     };
