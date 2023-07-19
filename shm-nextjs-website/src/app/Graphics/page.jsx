@@ -120,11 +120,12 @@ export default function GraphicsPage() {
   };
 
   const handleGetGraphicsData = async () => {
-    const id = `${moment(day).format('DDMMYYYY')}_${('00' + nMeasure).slice(
+    const id = `${moment(day).format('YYYYMMDD')}-${('00' + nMeasure).slice(
       -3,
     )}`;
+
     setLoading(true);
-    const response = await getGraphData(('00' + nMeasure).slice(-3));
+    const response = await getGraphData(id);
 
     if (response.error) {
       setLoading(false);

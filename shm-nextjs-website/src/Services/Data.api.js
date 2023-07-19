@@ -20,7 +20,9 @@ export const deleteMeasure = async id => {
     });
     return { data, error };
   } catch (error) {
-    return { error: { message: 'Error al borrar la medicione' } };
+    return {
+      error: { message: 'Error al borrar la medición' },
+    };
   }
 };
 export const deleteAllMeasure = async id => {

@@ -119,8 +119,7 @@ export default function MessurePage() {
     const timeout = duration * 60000 + 1 * 60000 + 60000;
 
     const payload = {
-      // id: today + '-' + ('00' + nMeasure).slice(-3),
-      id: ('00' + nMeasure).slice(-3),
+      id: today + '-' + ('00' + nMeasure).slice(-3),
       duration,
       sync,
       startTime: sync ? 1 : undefined,
@@ -269,7 +268,10 @@ export default function MessurePage() {
   }, []);
 
   const handleDeleteMeasure = React.useCallback(async () => {
-    const id = ('00' + nDelMeasure).slice(-3);
+    const id =
+      moment(deleteDay).format('YYYYMMDD') +
+      '-' +
+      ('00' + nDelMeasure).slice(-3);
 
     const { error } = await deleteMeasure(id);
     if (error) {
@@ -278,18 +280,20 @@ export default function MessurePage() {
       return;
     }
     toast.success('Medición borrada');
-  }, [nDelMeasure]);
+  }, [nDelMeasure, deleteDay]);
 
   const handleCreateCsvFiles = React.useCallback(async () => {
-    const id = ('00' + nDelMeasure).slice(-3);
-
+    const id =
+      moment(deleteDay).format('YYYYMMDD') +
+      '-' +
+      ('00' + nDelMeasure).slice(-3);
     const { error } = await generateCsv(id);
     if (error) {
       toast.error(error.message);
       return;
     }
     toast.success('Csv generado');
-  }, [nDelMeasure]);
+  }, [nDelMeasure, deleteDay]);
 
   // const handleGetMeasureData = React.useCallback(async () => {
   //   const id = ('00' + nDelMeasure).slice(-3);
