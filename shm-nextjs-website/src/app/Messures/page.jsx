@@ -22,16 +22,10 @@ import {
 
 import MyTextfield from '../components/inputs/MyTextfield';
 import { delay } from '../utils';
-import ConfirmationDialog from '../components/ConfirmationDialog';
 
 export default function MessurePage() {
   const [deleteDay, setDeleteDay] = React.useState(moment());
   const [nDelMeasure, setDelNmeasure] = React.useState(1);
-  const [dialogConfig, setDialogConfig] = React.useState({
-    open: false,
-    title: '',
-    bodyText: '',
-  });
 
   const [nMeasure, setNmeasure] = React.useState(1);
   const [sync, setSync] = React.useState(true);
@@ -312,41 +306,6 @@ export default function MessurePage() {
   //   toast.success('Recoleccion finalizada');
   // }, [nDelMeasure]);
 
-  const openCancelMeasureDialog = React.useCallback(() => {
-    setDialogConfig({
-      open: true,
-      title: 'Cancelar medición',
-      bodyText: '¿Está seguro que desea cancelar la medición?',
-      onAccept: handleCancelMeasure,
-      onClose: () => setDialogConfig({ open: false }),
-    });
-  }, [handleCancelMeasure]);
-
-  const openDeleteMeasureDialog = React.useCallback(() => {
-    const id =
-      moment(deleteDay).format('YYYYMMDD') +
-      '-' +
-      ('00' + nDelMeasure).slice(-3);
-    setDialogConfig({
-      open: true,
-      title: 'Borrar medición',
-      bodyText: `¿Está seguro que desea borrar la medición ${id}?, esto no podrá ser revertido.`,
-      onAccept: handleDeleteMeasure,
-      onClose: () => setDialogConfig({ open: false }),
-    });
-  }, [handleDeleteMeasure]);
-
-  const openDeleteAllMeasureDialog = React.useCallback(() => {
-    setDialogConfig({
-      open: true,
-      title: 'Borrar todas las mediciones',
-      bodyText:
-        '¿Está seguro que desea borrar todas las mediciones?, esto no podrá ser revertido.',
-      onAccept: handleDeleteAllMeasure,
-      onClose: () => setDialogConfig({ open: false }),
-    });
-  }, [handleDeleteAllMeasure]);
-
   return (
     <div className="flex flex-col flex-1 p-5 bg-gray-300">
       <h1 className="text-center text-4xl">Control de mediciones</h1>
@@ -372,7 +331,7 @@ export default function MessurePage() {
           )}
 
           {enableCancel && (
-            <Button onClick={openCancelMeasureDialog} className="mt-10">
+            <Button onClick={handleCancelMeasure} className="mt-10">
               Cancelar
             </Button>
           )}
@@ -562,7 +521,7 @@ export default function MessurePage() {
               TransitionProps={{ timeout: 600 }}
               title="Una vez borrada medición no podra ser recuperada">
               <Button
-                onClick={openDeleteMeasureDialog}
+                onClick={handleDeleteMeasure}
                 className="!mt-5 bg-primary hover:bg-blue-700"
                 variant="contained">
                 Borrar medición
@@ -574,7 +533,7 @@ export default function MessurePage() {
               TransitionProps={{ timeout: 600 }}
               title="Se borraran todas las mediciones y no podran ser recuperadas">
               <Button
-                onClick={openDeleteAllMeasureDialog}
+                onClick={handleDeleteAllMeasure}
                 className="!mt-5 bg-primary hover:bg-blue-700"
                 variant="contained">
                 Borrar todo
@@ -601,7 +560,6 @@ export default function MessurePage() {
           </div>
         </div>
       )}
-      <ConfirmationDialog {...dialogConfig} />
     </div>
   );
 }

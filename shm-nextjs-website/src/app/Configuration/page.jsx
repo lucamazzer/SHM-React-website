@@ -10,19 +10,12 @@ import { configSystem } from '@/Services/Configuration.api';
 import { eraseSD } from '@/Services/Data.api';
 import { cancelMeasure } from '@/Services/Measures.api';
 import { restartNodes } from '@/Services/Nodos.api';
-import ConfirmationDialog from '../components/ConfirmationDialog';
 
 export default function ConfigurationPage() {
   const [ip, setIP] = React.useState('');
   const [user, setUser] = React.useState('');
   const [psw, setPsw] = React.useState('');
   const { currentTimeOutId, cleanMeasureState } = useAppContext();
-
-  const [dialogConfig, setDialogConfig] = React.useState({
-    open: false,
-    title: '',
-    bodyText: '',
-  });
 
   const saveBrocker = React.useCallback(async () => {
     const { error } = await configSystem(user, psw, ip);
@@ -62,37 +55,6 @@ export default function ConfigurationPage() {
     }
     toast.success('Nodos reiniciados correctamente');
   }, []);
-
-  const openResetNodesDialog = React.useCallback(() => {
-    setDialogConfig({
-      open: true,
-      title: 'Reiniciar nodos',
-      bodyText:
-        'Al reiniciar los nodos se perdera el sincronismo de los mismos',
-      onAccept: handleResetNodes,
-      onClose: () => setDialogConfig({ open: false }),
-    });
-  }, [handleResetNodes]);
-
-  const openCleanSDDialog = React.useCallback(() => {
-    setDialogConfig({
-      open: true,
-      title: 'Borrar tarjetas SD',
-      bodyText: '¿Está seguro que desea borrar las tarjetas SD?',
-      onAccept: handleCleanSD,
-      onClose: () => setDialogConfig({ open: false }),
-    });
-  }, [handleCleanSD]);
-
-  const openCancelMeasureDialog = React.useCallback(() => {
-    setDialogConfig({
-      open: true,
-      title: 'Cancelar mediciones',
-      bodyText: '¿Está seguro que desea cancelar las mediciones?',
-      onAccept: handleCancelMeasure,
-      onClose: () => setDialogConfig({ open: false }),
-    });
-  }, [handleCancelMeasure]);
 
   return (
     <div className="flex flex-col bg-gray-300 text-black text-center h-full items-center ">
@@ -144,24 +106,23 @@ export default function ConfigurationPage() {
           <Button
             className="bg-primary hover:bg-blue-700"
             variant="contained"
-            onClick={openResetNodesDialog}>
+            onClick={handleResetNodes}>
             Reiniciar nodos
           </Button>
         </Tooltip>
         <Button
-          className="bg-primary hover:bg-blue-700 !mt-5"
+          className="bg-primary hover:bg-blue-700 mt-5"
           variant="contained"
-          onClick={openCancelMeasureDialog}>
+          onClick={handleCancelMeasure}>
           Cancelar mediciones
         </Button>
         <Button
-          className="bg-primary hover:bg-blue-700 !mt-5"
+          className="bg-primary hover:bg-blue-700 mt-5"
           variant="contained"
-          onClick={openCleanSDDialog}>
+          onClick={handleCleanSD}>
           Borrar tarjetas SD
         </Button>
       </div>
-      <ConfirmationDialog {...dialogConfig} />
     </div>
   );
 }
