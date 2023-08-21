@@ -16,3 +16,16 @@ export const configSystem = async (user, psw, brokerIP) => {
     };
   }
 };
+
+export const cleanAppState = async () => {
+  try {
+    const { data, error } = await api.post('clean_app_state');
+    return { data, error };
+  } catch (error) {
+    return {
+      error: {
+        message: `Algo salió mal, intente nuevamente`,
+      },
+    };
+  }
+}

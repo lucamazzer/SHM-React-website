@@ -26,7 +26,7 @@ const ConfirmationDialog = ({
   };
 
   const handleOk = () => {
-    onAccept(value);
+    onAccept();
   };
 
   return (
