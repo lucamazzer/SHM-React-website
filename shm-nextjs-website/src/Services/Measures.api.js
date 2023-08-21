@@ -30,7 +30,7 @@ export const cancelMeasure = async id => {
     });
     return { data, error };
   } catch (error) {
-    return { error: { message: error?.response?.data?.error } };
+    return { error: { message: "error al cancelar medicion" } };
   }
 };
 

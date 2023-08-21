@@ -9,7 +9,11 @@ export const AppContextProvider = ({ children }) => {
   const [loadingMessage, setLoadingMessage] = React.useState(
     'Medición en progreso...',
   );
+  const [cancelMeasureMode, setCancelMeasureMode] = React.useState(
+   true,
+  );
   const [currentTimeOutId, setCurrentTimeOutId] = React.useState(null);
+  const [currentDownloadIntervalId, setCurrentDownloadIntervalId] = React.useState(null);
 
   const [showClock, setShowClock] = React.useState(null);
 
@@ -31,6 +35,10 @@ export const AppContextProvider = ({ children }) => {
         showClock,
         setShowClock,
         cleanMeasureState,
+        cancelMeasureMode,
+        setCancelMeasureMode,
+        currentDownloadIntervalId,
+        setCurrentDownloadIntervalId,
       }}>
       {children}
     </AppContext.Provider>
