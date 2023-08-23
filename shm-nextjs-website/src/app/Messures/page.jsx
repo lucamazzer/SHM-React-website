@@ -71,16 +71,15 @@ export default function MessurePage() {
 
   const checkMeasureIsInProgress = React.useCallback(async () => {
     const { error: measureStateError, data } = await getMeasureStatus(sync);
-
     if (
-      measureStateError ||
-      data.status !== 'measureInProgress' ||
-      data.status !== 'downloadInProgress'
+      data.status !== 'measureInProgress' &&
+      data.status !== 'downloadInProgress' &&
+      data.status !== 'waitingStartMeasure'
     ) {
       return;
     }
 
-    const timeLeft = (Number(data?.data?.[0]?.tLeft || 0) * 100) / 100;
+    setMeasureInProgress(true);
 
     if (data.status === 'downloadInProgress') {
       setCancelMeasureMode(false);
@@ -101,32 +100,54 @@ export default function MessurePage() {
       return;
     }
 
-    setLoadingMessage('Medición en progreso...');
-    setMeasureInProgress(true);
-    setEnableCancel(true);
+    const measureInProgressActions = measureData => {
+      setEnableCancel(true);
+      setShowClock(true);
+      const timeLeft = (Number(measureData?.data?.[0]?.tLeft || 0) * 100) / 100;
+      setTimer(timeLeft);
+      setLoadingMessage('Medición en progreso...');
+      const timeoutMeasure = timeLeft * 1000;
+      const timeoutId = setTimeout(async () => {
+        setLoadingMessage('descargando datos...');
+        setShowClock(false);
+        setCancelMeasureMode(false);
 
-    setTimer(timeLeft);
-    const timeoutMeasure = timeLeft * 1000;
+        const downloadInterval = setInterval(async () => {
+          const { data: downloadData } = await checkDownloadInProgress(sync);
+          if (downloadData.status !== 'downloadInProgress') {
+            clearInterval(downloadInterval);
+            setCancelMeasureMode(true);
+            currentDownloadIntervalId && setCurrentDownloadIntervalId(null);
 
-    const timeoutId = setTimeout(async () => {
-      setLoadingMessage('descargando datos...');
+            setTimer(0);
+            setMeasureInProgress(false);
+            return;
+          }
+        }, timeDownloadInterval);
+        setCurrentDownloadIntervalId(downloadInterval);
+      }, timeoutMeasure);
+      setCurrentTimeOutId(timeoutId);
+    };
+
+    if (data.status === 'waitingStartMeasure') {
+      setMeasureInProgress(true);
       setCancelMeasureMode(false);
-      setShowClock(false);
-      const downloadInterval = setInterval(async () => {
-        const { data } = await checkDownloadInProgress(sync);
-        if (data.status !== 'downloadInProgress') {
-          clearInterval(downloadInterval);
-          currentDownloadIntervalId && setCurrentDownloadIntervalId(null);
 
-          setTimer(0);
-          setMeasureInProgress(false);
-          setCancelMeasureMode(true);
+      setLoadingMessage('Esperando Hora de inicio...');
+      const checkStartAgain = setInterval(async () => {
+        const { error: intervalError, data: intervalData } =
+          await getMeasureStatus(sync);
+
+        console.log('interval', intervalData);
+        if (intervalData.status !== 'waitingStartMeasure') {
+          clearInterval(checkStartAgain);
+          measureInProgressActions(intervalData);
           return;
         }
-      }, timeDownloadInterval);
-      setCurrentDownloadIntervalId(downloadInterval);
-    }, timeoutMeasure);
-    setCurrentTimeOutId(timeoutId);
+      }, 10000);
+    } else {
+      measureInProgressActions(data);
+    }
   }, [sync]);
 
   React.useEffect(() => {
@@ -185,9 +206,39 @@ export default function MessurePage() {
       payload.id,
     );
 
+    const measureInProgressActions = measureData => {
+      setEnableCancel(true);
+      setShowClock(true);
+      const timeLeft = (Number(measureData?.data?.[0]?.tLeft || 0) * 100) / 100;
+      setTimer(timeLeft);
+      setLoadingMessage('Medición en progreso...');
+      const timeoutMeasure = timeLeft * 1000;
+      const timeoutId = setTimeout(async () => {
+        setLoadingMessage('descargando datos...');
+        setShowClock(false);
+        setCancelMeasureMode(false);
+
+        const downloadInterval = setInterval(async () => {
+          const { data: downloadData } = await checkDownloadInProgress(sync);
+          if (downloadData.status !== 'downloadInProgress') {
+            clearInterval(downloadInterval);
+            setCancelMeasureMode(true);
+            currentDownloadIntervalId && setCurrentDownloadIntervalId(null);
+
+            setTimer(0);
+            setMeasureInProgress(false);
+            return;
+          }
+        }, timeDownloadInterval);
+        setCurrentDownloadIntervalId(downloadInterval);
+      }, timeoutMeasure);
+      setCurrentTimeOutId(timeoutId);
+    };
+
     if (measureStateError || data.status !== 'ok') {
       const measureInProgress = data?.status === 'measureInProgress';
       const downloadInProgress = data?.status === 'downloadInProgress';
+      const waitingStartMeasure = data?.status === 'waitingStartMeasure';
 
       if (downloadInProgress) {
         setMeasureInProgress(true);
@@ -196,8 +247,8 @@ export default function MessurePage() {
         setLoadingMessage('descargando datos...');
         setShowClock(false);
         const downloadInterval = setInterval(async () => {
-          const { data } = await checkDownloadInProgress(sync);
-          if (data.status !== 'downloadInProgress') {
+          const { data: downloadData } = await checkDownloadInProgress(sync);
+          if (downloadData.status !== 'downloadInProgress') {
             clearInterval(downloadInterval);
             currentDownloadIntervalId && setCurrentDownloadIntervalId(null);
 
@@ -212,36 +263,31 @@ export default function MessurePage() {
         return;
       }
 
-      if (measureInProgress) {
+      if (measureInProgress || waitingStartMeasure) {
         setCancelMeasureMode(true);
 
         setMeasureInProgress(measureInProgress);
-        setEnableCancel(measureInProgress);
-        setShowClock(true);
-        const timeLeft = (Number(data?.data?.[0]?.tLeft || 0) * 100) / 100;
-        setTimer(timeLeft);
-        setLoadingMessage('Medición en progreso...');
-        const timeoutMeasure = timeLeft * 1000;
-        const timeoutId = setTimeout(async () => {
-          setLoadingMessage('descargando datos...');
-          setShowClock(false);
+
+        if (waitingStartMeasure) {
+          console.log('waitingStartMeasure');
+          setMeasureInProgress(true);
           setCancelMeasureMode(false);
 
-          const downloadInterval = setInterval(async () => {
-            const { data } = await checkDownloadInProgress(sync);
-            if (data.status !== 'downloadInProgress') {
-              clearInterval(downloadInterval);
-              setCancelMeasureMode(true);
-              currentDownloadIntervalId && setCurrentDownloadIntervalId(null);
+          setLoadingMessage('Esperando Hora de inicio...');
+          const checkStartAgain = setInterval(async () => {
+            const { error: intervalError, data: intervalData } =
+              await getMeasureStatus(sync);
 
-              setTimer(0);
-              setMeasureInProgress(false);
+            console.log('interval', intervalData);
+            if (intervalData.status !== 'waitingStartMeasure') {
+              clearInterval(checkStartAgain);
+              measureInProgressActions(intervalData);
               return;
             }
-          }, timeDownloadInterval);
-          setCurrentDownloadIntervalId(downloadInterval);
-        }, timeoutMeasure);
-        setCurrentTimeOutId(timeoutId);
+          }, 10000);
+        } else {
+          measureInProgressActions(data);
+        }
       } else {
         setMeasureInProgress(false);
       }
@@ -277,8 +323,8 @@ export default function MessurePage() {
       setCancelMeasureMode(false);
 
       const downloadInterval = setInterval(async () => {
-        const { data } = await checkDownloadInProgress(sync);
-        if (data.status !== 'downloadInProgress') {
+        const { data: downloadData } = await checkDownloadInProgress(sync);
+        if (downloadData.status !== 'downloadInProgress') {
           clearInterval(downloadInterval);
           setCancelMeasureMode(true);
           currentDownloadIntervalId && setCurrentDownloadIntervalId(null);
