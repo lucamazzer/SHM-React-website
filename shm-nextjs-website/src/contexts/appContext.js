@@ -1,5 +1,5 @@
 'use client';
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useCallback, useContext, useState } from 'react';
 
 export const AppContext = createContext({});
 
@@ -17,11 +17,11 @@ export const AppContextProvider = ({ children }) => {
 
   const [showClock, setShowClock] = React.useState(null);
 
-  const cleanMeasureState = () => {
+  const cleanMeasureState = useCallback(() => {
     setMeasureInProgress(false);
     setLoadingMessage('Medición en progreso...');
     setShowClock(null);
-  };
+  },[setMeasureInProgress, setLoadingMessage, setShowClock]);
 
   return (
     <AppContext.Provider

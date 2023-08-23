@@ -294,26 +294,29 @@ export default function MessurePage() {
   }, [duration, nMeasure, sync, comment]);
 
   const handleCancelMeasure = React.useCallback(async () => {
+    console.log('cancel');
+    cleanMeasureState();
+    currentTimeOutId && clearTimeout(currentTimeOutId);
+
     const { error } = await cancelMeasure();
+
     if (error) {
-      console.log('error');
+      console.log('error', error);
       return;
     }
-    cleanMeasureState();
-
-    currentTimeOutId && clearTimeout(currentTimeOutId);
-  }, []);
+  }, [currentTimeOutId]);
 
   const handleCancelDownload = React.useCallback(async () => {
+    cleanMeasureState();
+
     const { error } = await cancelDownloads();
+    currentDownloadIntervalId && clearInterval(currentDownloadIntervalId);
+
     if (error) {
       console.log('error');
       return;
     }
-    cleanMeasureState();
-
-    currentDownloadIntervalId && clearInterval(currentDownloadIntervalId);
-  }, []);
+  }, [currentDownloadIntervalId]);
 
   const handleSetnMeasure = event => {
     const newValue =
