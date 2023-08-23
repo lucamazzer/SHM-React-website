@@ -10,6 +10,8 @@ import moment from 'moment';
 
 import { useAppContext } from '@/contexts/appContext';
 import {
+  cancelDownloads,
+  checkDownloadInProgress,
   deleteAllMeasure,
   deleteMeasure,
   generateCsv,
@@ -32,6 +34,7 @@ export default function MessurePage() {
     title: '',
     bodyText: '',
   });
+  const timeDownloadInterval = 10000; // intervalo en los que se consulta sit ermino de descargar los archivos.
 
   const [nMeasure, setNmeasure] = React.useState(1);
   const [sync, setSync] = React.useState(true);
@@ -60,30 +63,91 @@ export default function MessurePage() {
     showClock,
     setShowClock,
     cleanMeasureState,
+    cancelMeasureMode,
+    setCancelMeasureMode,
+    currentDownloadIntervalId,
+    setCurrentDownloadIntervalId,
   } = useAppContext();
 
   const checkMeasureIsInProgress = React.useCallback(async () => {
     const { error: measureStateError, data } = await getMeasureStatus(sync);
-
-    if (measureStateError || data.status !== 'measureInProgress') {
+    if (
+      data.status !== 'measureInProgress' &&
+      data.status !== 'downloadInProgress' &&
+      data.status !== 'waitingStartMeasure'
+    ) {
       return;
     }
-    setLoadingMessage('Medición en progreso...');
+
     setMeasureInProgress(true);
-    setEnableCancel(true);
-    const timeLeft = (Number(data?.data?.[0]?.tLeft || 0) * 100) / 100;
 
-    setTimer(timeLeft);
-    const timeoutMeasure = timeLeft * 1000;
-
-    const timeoutId = setTimeout(async () => {
+    if (data.status === 'downloadInProgress') {
+      setCancelMeasureMode(false);
       setLoadingMessage('descargando datos...');
       setShowClock(false);
-      await delay(20000);
-      setTimer(0);
-      setMeasureInProgress(false);
-    }, timeoutMeasure);
-    setCurrentTimeOutId(timeoutId);
+      const downloadInterval = setInterval(async () => {
+        const { data } = await checkDownloadInProgress(sync);
+        if (data.status !== 'downloadInProgress') {
+          clearInterval(downloadInterval);
+          currentDownloadIntervalId && setCurrentDownloadIntervalId(null);
+          setTimer(0);
+          setMeasureInProgress(false);
+          setCancelMeasureMode(true);
+          return;
+        }
+        setCurrentDownloadIntervalId(downloadInterval);
+      }, timeDownloadInterval);
+      return;
+    }
+
+    const measureInProgressActions = measureData => {
+      setEnableCancel(true);
+      setShowClock(true);
+      const timeLeft = (Number(measureData?.data?.[0]?.tLeft || 0) * 100) / 100;
+      setTimer(timeLeft);
+      setLoadingMessage('Medición en progreso...');
+      const timeoutMeasure = timeLeft * 1000;
+      const timeoutId = setTimeout(async () => {
+        setLoadingMessage('descargando datos...');
+        setShowClock(false);
+        setCancelMeasureMode(false);
+
+        const downloadInterval = setInterval(async () => {
+          const { data: downloadData } = await checkDownloadInProgress(sync);
+          if (downloadData.status !== 'downloadInProgress') {
+            clearInterval(downloadInterval);
+            setCancelMeasureMode(true);
+            currentDownloadIntervalId && setCurrentDownloadIntervalId(null);
+
+            setTimer(0);
+            setMeasureInProgress(false);
+            return;
+          }
+        }, timeDownloadInterval);
+        setCurrentDownloadIntervalId(downloadInterval);
+      }, timeoutMeasure);
+      setCurrentTimeOutId(timeoutId);
+    };
+
+    if (data.status === 'waitingStartMeasure') {
+      setMeasureInProgress(true);
+      setCancelMeasureMode(false);
+
+      setLoadingMessage('Esperando Hora de inicio...');
+      const checkStartAgain = setInterval(async () => {
+        const { error: intervalError, data: intervalData } =
+          await getMeasureStatus(sync);
+
+        console.log('interval', intervalData);
+        if (intervalData.status !== 'waitingStartMeasure') {
+          clearInterval(checkStartAgain);
+          measureInProgressActions(intervalData);
+          return;
+        }
+      }, 10000);
+    } else {
+      measureInProgressActions(data);
+    }
   }, [sync]);
 
   React.useEffect(() => {
@@ -142,24 +206,88 @@ export default function MessurePage() {
       payload.id,
     );
 
+    const measureInProgressActions = measureData => {
+      setEnableCancel(true);
+      setShowClock(true);
+      const timeLeft = (Number(measureData?.data?.[0]?.tLeft || 0) * 100) / 100;
+      setTimer(timeLeft);
+      setLoadingMessage('Medición en progreso...');
+      const timeoutMeasure = timeLeft * 1000;
+      const timeoutId = setTimeout(async () => {
+        setLoadingMessage('descargando datos...');
+        setShowClock(false);
+        setCancelMeasureMode(false);
+
+        const downloadInterval = setInterval(async () => {
+          const { data: downloadData } = await checkDownloadInProgress(sync);
+          if (downloadData.status !== 'downloadInProgress') {
+            clearInterval(downloadInterval);
+            setCancelMeasureMode(true);
+            currentDownloadIntervalId && setCurrentDownloadIntervalId(null);
+
+            setTimer(0);
+            setMeasureInProgress(false);
+            return;
+          }
+        }, timeDownloadInterval);
+        setCurrentDownloadIntervalId(downloadInterval);
+      }, timeoutMeasure);
+      setCurrentTimeOutId(timeoutId);
+    };
+
     if (measureStateError || data.status !== 'ok') {
       const measureInProgress = data?.status === 'measureInProgress';
-      if (measureInProgress) {
+      const downloadInProgress = data?.status === 'downloadInProgress';
+      const waitingStartMeasure = data?.status === 'waitingStartMeasure';
+
+      if (downloadInProgress) {
+        setMeasureInProgress(true);
+        setCancelMeasureMode(false);
+
+        setLoadingMessage('descargando datos...');
+        setShowClock(false);
+        const downloadInterval = setInterval(async () => {
+          const { data: downloadData } = await checkDownloadInProgress(sync);
+          if (downloadData.status !== 'downloadInProgress') {
+            clearInterval(downloadInterval);
+            currentDownloadIntervalId && setCurrentDownloadIntervalId(null);
+
+            setTimer(0);
+            setMeasureInProgress(false);
+            setCancelMeasureMode(true);
+
+            return;
+          }
+          setCurrentDownloadIntervalId(downloadInterval);
+        }, timeDownloadInterval);
+        return;
+      }
+
+      if (measureInProgress || waitingStartMeasure) {
+        setCancelMeasureMode(true);
+
         setMeasureInProgress(measureInProgress);
-        setEnableCancel(measureInProgress);
-        setShowClock(true);
-        const timeLeft = (Number(data?.data?.[0]?.tLeft || 0) * 100) / 100;
-        setTimer(timeLeft);
-        setLoadingMessage('Medición en progreso...');
-        const timeoutMeasure = timeLeft * 1000;
-        const timeoutId = setTimeout(async () => {
-          setLoadingMessage('descargando datos...');
-          setShowClock(false);
-          await delay(20000);
-          setTimer(0);
-          setMeasureInProgress(false);
-        }, timeoutMeasure);
-        setCurrentTimeOutId(timeoutId);
+
+        if (waitingStartMeasure) {
+          console.log('waitingStartMeasure');
+          setMeasureInProgress(true);
+          setCancelMeasureMode(false);
+
+          setLoadingMessage('Esperando Hora de inicio...');
+          const checkStartAgain = setInterval(async () => {
+            const { error: intervalError, data: intervalData } =
+              await getMeasureStatus(sync);
+
+            console.log('interval', intervalData);
+            if (intervalData.status !== 'waitingStartMeasure') {
+              clearInterval(checkStartAgain);
+              measureInProgressActions(intervalData);
+              return;
+            }
+          }, 10000);
+        } else {
+          measureInProgressActions(data);
+        }
       } else {
         setMeasureInProgress(false);
       }
@@ -192,24 +320,49 @@ export default function MessurePage() {
     const timeoutId = setTimeout(async () => {
       setLoadingMessage('descargando datos...');
       setShowClock(false);
-      await delay(20000);
-      setTimer(0);
-      setMeasureInProgress(false);
+      setCancelMeasureMode(false);
+
+      const downloadInterval = setInterval(async () => {
+        const { data: downloadData } = await checkDownloadInProgress(sync);
+        if (downloadData.status !== 'downloadInProgress') {
+          clearInterval(downloadInterval);
+          setCancelMeasureMode(true);
+          currentDownloadIntervalId && setCurrentDownloadIntervalId(null);
+
+          setTimer(0);
+          setMeasureInProgress(false);
+          return;
+        }
+      }, timeDownloadInterval);
+      setCurrentDownloadIntervalId(downloadInterval);
     }, timeoutMeasure);
     setCurrentTimeOutId(timeoutId);
   }, [duration, nMeasure, sync, comment]);
 
   const handleCancelMeasure = React.useCallback(async () => {
+    console.log('cancel');
     cleanMeasureState();
+    currentTimeOutId && clearTimeout(currentTimeOutId);
 
     const { error } = await cancelMeasure();
+
+    if (error) {
+      console.log('error', error);
+      return;
+    }
+  }, [currentTimeOutId]);
+
+  const handleCancelDownload = React.useCallback(async () => {
+    cleanMeasureState();
+
+    const { error } = await cancelDownloads();
+    currentDownloadIntervalId && clearInterval(currentDownloadIntervalId);
+
     if (error) {
       console.log('error');
       return;
     }
-
-    currentTimeOutId && clearTimeout(currentTimeOutId);
-  }, []);
+  }, [currentDownloadIntervalId]);
 
   const handleSetnMeasure = event => {
     const newValue =
@@ -301,23 +454,21 @@ export default function MessurePage() {
     toast.success('Csv generado');
   }, [nDelMeasure, deleteDay]);
 
-  // const handleGetMeasureData = React.useCallback(async () => {
-  //   const id = ('00' + nDelMeasure).slice(-3);
-
-  //   const { error } = await generateCsv(id);
-  //   if (error) {
-  //     toast.error(error.message);
-  //     return;
-  //   }
-  //   toast.success('Recoleccion finalizada');
-  // }, [nDelMeasure]);
-
   const openCancelMeasureDialog = React.useCallback(() => {
     setDialogConfig({
       open: true,
-      title: 'Cancelar medición',
-      bodyText: '¿Está seguro que desea cancelar la medición?',
-      onAccept: handleCancelMeasure,
+      title: cancelMeasureMode ? 'Cancelar medición' : 'Cancelar descarga',
+      bodyText: cancelMeasureMode
+        ? '¿Está seguro que desea cancelar la medición?'
+        : '¿Está seguro que desea cancelar la descarga?',
+      onAccept: () => {
+        setDialogConfig({ open: false });
+        if (cancelMeasureMode) {
+          handleCancelMeasure();
+        } else {
+          handleCancelDownload();
+        }
+      },
       onClose: () => setDialogConfig({ open: false }),
     });
   }, [handleCancelMeasure]);
@@ -331,7 +482,10 @@ export default function MessurePage() {
       open: true,
       title: 'Borrar medición',
       bodyText: `¿Está seguro que desea borrar la medición ${id}?, esto no podrá ser revertido.`,
-      onAccept: handleDeleteMeasure,
+      onAccept: () => {
+        setDialogConfig({ open: false });
+        handleDeleteMeasure();
+      },
       onClose: () => setDialogConfig({ open: false }),
     });
   }, [handleDeleteMeasure]);
@@ -342,7 +496,10 @@ export default function MessurePage() {
       title: 'Borrar todas las mediciones',
       bodyText:
         '¿Está seguro que desea borrar todas las mediciones?, esto no podrá ser revertido.',
-      onAccept: handleDeleteAllMeasure,
+      onAccept: () => {
+        setDialogConfig({ open: false });
+        handleDeleteAllMeasure();
+      },
       onClose: () => setDialogConfig({ open: false }),
     });
   }, [handleDeleteAllMeasure]);

@@ -6,7 +6,7 @@ import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
 
 import { useAppContext } from '@/contexts/appContext';
-import { configSystem } from '@/Services/Configuration.api';
+import { cleanAppState, configSystem } from '@/Services/Configuration.api';
 import { eraseSD } from '@/Services/Data.api';
 import { cancelMeasure } from '@/Services/Measures.api';
 import { restartNodes } from '@/Services/Nodos.api';
@@ -69,7 +69,10 @@ export default function ConfigurationPage() {
       title: 'Reiniciar nodos',
       bodyText:
         'Al reiniciar los nodos se perdera el sincronismo de los mismos',
-      onAccept: handleResetNodes,
+      onAccept: () => {
+        setDialogConfig({ open: false });
+        handleResetNodes();
+      },
       onClose: () => setDialogConfig({ open: false }),
     });
   }, [handleResetNodes]);
@@ -79,7 +82,10 @@ export default function ConfigurationPage() {
       open: true,
       title: 'Borrar tarjetas SD',
       bodyText: '¿Está seguro que desea borrar las tarjetas SD?',
-      onAccept: handleCleanSD,
+      onAccept: () => {
+        setDialogConfig({ open: false });
+        handleCleanSD();
+      },
       onClose: () => setDialogConfig({ open: false }),
     });
   }, [handleCleanSD]);
@@ -89,7 +95,32 @@ export default function ConfigurationPage() {
       open: true,
       title: 'Cancelar mediciones',
       bodyText: '¿Está seguro que desea cancelar las mediciones?',
-      onAccept: handleCancelMeasure,
+      onAccept: () => {
+        setDialogConfig({ open: false });
+        handleCancelMeasure();
+      },
+      onClose: () => setDialogConfig({ open: false }),
+    });
+  }, [handleCancelMeasure]);
+
+  const handleCleanAppState = React.useCallback(async () => {
+    const { error } = await cleanAppState();
+    if (error) {
+      toast.error('Error al limpiar el estado de la aplicación');
+      return;
+    }
+    toast.success('Estado de la aplicación limpiado correctamente');
+  }, []);
+
+  const openCleanAppDialog = React.useCallback(() => {
+    setDialogConfig({
+      open: true,
+      title: 'Cancelar mediciones',
+      bodyText: '¿Está seguro que desea cancelar las mediciones?',
+      onAccept: () => {
+        setDialogConfig({ open: false });
+        handleCleanAppState();
+      },
       onClose: () => setDialogConfig({ open: false }),
     });
   }, [handleCancelMeasure]);
@@ -97,7 +128,7 @@ export default function ConfigurationPage() {
   return (
     <div className="flex flex-col bg-gray-300 text-black text-center h-full items-center ">
       <h1 className="text-center text-4xl my-10">Configuración</h1>
-      <div className="flex flex-col p-5 mt-5 items-center justify-center bg-gray-200 border-2 border-primary rounded-2xl item-center ">
+      {/* <div className="flex flex-col p-5 mt-5 items-center justify-center bg-gray-200 border-2 border-primary rounded-2xl item-center ">
         <Box
           component="form"
           sx={{
@@ -134,7 +165,7 @@ export default function ConfigurationPage() {
             Guardar
           </Button>
         </Box>
-      </div>
+      </div> */}
       <div className="flex flex-col p-5 mt-5 items-center justify-center bg-gray-200 border-2 border-primary rounded-2xl item-center ">
         <h1 className="text-center text-2xl mb-5">Acciones de emergencia</h1>
         <Tooltip
@@ -159,6 +190,12 @@ export default function ConfigurationPage() {
           variant="contained"
           onClick={openCleanSDDialog}>
           Borrar tarjetas SD
+        </Button>
+        <Button
+          className="bg-primary hover:bg-blue-700 !mt-5"
+          variant="contained"
+          onClick={openCleanAppDialog}>
+          Reiniciar Estado de la aplicación
         </Button>
       </div>
       <ConfirmationDialog {...dialogConfig} />

@@ -44,3 +44,22 @@ export const generateCsv = async id => {
     return { error: { message: 'No se pudo crear los csv' } };
   }
 };
+
+
+export const cancelDownloads = async () => {
+  try {
+    const { data, error } = await api.post('cancel_downloads');
+    return { data, error };
+  } catch (error) {
+    return { error: { message: 'No se pudo cancelar la descarga' } };
+  }
+}
+
+export const checkDownloadInProgress = async () => {
+  try {
+    const { data, error } = await api.post('check_download_in_progress');
+    return { data, error };
+  } catch (error) {
+    return { error: { message: 'Error al consultar por descarga en progreso' } };
+  }
+}

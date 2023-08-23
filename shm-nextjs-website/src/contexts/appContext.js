@@ -1,5 +1,5 @@
 'use client';
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useCallback, useContext, useState } from 'react';
 
 export const AppContext = createContext({});
 
@@ -9,15 +9,19 @@ export const AppContextProvider = ({ children }) => {
   const [loadingMessage, setLoadingMessage] = React.useState(
     'Medición en progreso...',
   );
+  const [cancelMeasureMode, setCancelMeasureMode] = React.useState(
+   true,
+  );
   const [currentTimeOutId, setCurrentTimeOutId] = React.useState(null);
+  const [currentDownloadIntervalId, setCurrentDownloadIntervalId] = React.useState(null);
 
   const [showClock, setShowClock] = React.useState(null);
 
-  const cleanMeasureState = () => {
+  const cleanMeasureState = useCallback(() => {
     setMeasureInProgress(false);
     setLoadingMessage('Medición en progreso...');
     setShowClock(null);
-  };
+  },[setMeasureInProgress, setLoadingMessage, setShowClock]);
 
   return (
     <AppContext.Provider
@@ -31,6 +35,10 @@ export const AppContextProvider = ({ children }) => {
         showClock,
         setShowClock,
         cleanMeasureState,
+        cancelMeasureMode,
+        setCancelMeasureMode,
+        currentDownloadIntervalId,
+        setCurrentDownloadIntervalId,
       }}>
       {children}
     </AppContext.Provider>
