@@ -175,7 +175,7 @@ export default function GraphicsPage() {
   );
 
   return (
-    <div className="h-full p-5 bg-gray-300">
+    <div className="h-full p-5 bg-gray-300 overflow-auto shrink-0">
       <h1 className="text-center text-4xl">Graficar Mediciones</h1>
       <div className="flex flex-col p-5 mt-5 items-center justify-center bg-gray-200 border-2 border-primary rounded-2xl">
         <div className="flex my-5 items-center">
