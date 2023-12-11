@@ -22,9 +22,9 @@ import {
   initMeasure,
 } from '@/Services/Measures.api';
 
+import ConfirmationDialog from '../components/ConfirmationDialog';
 import MyTextfield from '../components/inputs/MyTextfield';
 import { delay } from '../utils';
-import ConfirmationDialog from '../components/ConfirmationDialog';
 
 export default function MessurePage() {
   const [deleteDay, setDeleteDay] = React.useState(moment());
@@ -121,7 +121,6 @@ export default function MessurePage() {
 
             setTimer(0);
             setMeasureInProgress(false);
-            return;
           }
         }, timeDownloadInterval);
         setCurrentDownloadIntervalId(downloadInterval);
@@ -142,7 +141,6 @@ export default function MessurePage() {
         if (intervalData.status !== 'waitingStartMeasure') {
           clearInterval(checkStartAgain);
           measureInProgressActions(intervalData);
-          return;
         }
       }, 10000);
     } else {
@@ -227,7 +225,6 @@ export default function MessurePage() {
 
             setTimer(0);
             setMeasureInProgress(false);
-            return;
           }
         }, timeDownloadInterval);
         setCurrentDownloadIntervalId(downloadInterval);
@@ -282,7 +279,6 @@ export default function MessurePage() {
             if (intervalData.status !== 'waitingStartMeasure') {
               clearInterval(checkStartAgain);
               measureInProgressActions(intervalData);
-              return;
             }
           }, 10000);
         } else {
@@ -331,7 +327,6 @@ export default function MessurePage() {
 
           setTimer(0);
           setMeasureInProgress(false);
-          return;
         }
       }, timeDownloadInterval);
       setCurrentDownloadIntervalId(downloadInterval);
@@ -348,7 +343,6 @@ export default function MessurePage() {
 
     if (error) {
       console.log('error', error);
-      return;
     }
   }, [currentTimeOutId]);
 
@@ -360,7 +354,6 @@ export default function MessurePage() {
 
     if (error) {
       console.log('error');
-      return;
     }
   }, [currentDownloadIntervalId]);
 

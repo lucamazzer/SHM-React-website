@@ -14,11 +14,18 @@ import '@react-pdf-viewer/core/lib/styles/index.css';
 function PDFViewer() {
   const defaultLayoutPluginInstance = defaultLayoutPlugin();
 
-  const [pdfFile, setPdfFile] = useState('/sample.pdf');
+  const [pdfFile, setPdfFile] = useState('/manual_web.pdf');
 
   const fileOptions = [
-    { value: '/sample.pdf', label: 'sample.pdf' },
-    { value: '/test.pdf', label: 'sample2.pdf' },
+    { value: '/manual_web.pdf', label: 'Manual de la Web' },
+    {
+      value: '/manual_nodo_acelerometro.pdf',
+      label: 'Manual nodo acelerometro',
+    },
+    {
+      value: '/manual_nodo_concentrador.pdf',
+      label: 'Manual nodo concentrador',
+    },
   ];
 
   function onFileChange(event) {
