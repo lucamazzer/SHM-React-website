@@ -2,9 +2,9 @@
 import { useEffect, useState } from 'react';
 import { Document, Page, pdfjs } from 'react-pdf';
 
+import Loader from './Loader';
 // import pdf from '../../../public/sample.pdf'
 import MySelect from './MySelect';
-import Loader from './Loader';
 
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
   'pdfjs-dist/build/pdf.worker.min.js',
