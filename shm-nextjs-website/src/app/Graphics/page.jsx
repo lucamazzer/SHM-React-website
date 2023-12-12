@@ -27,7 +27,7 @@ const tiposGraphicos = {
   gyroscopeY: 'Giroscopio en Y',
   gyroscopeZ: 'Giroscopio en Z',
   // giroscopio: 'Giroscopio todos los ejes',
-  temperatura: 'Temperatura',
+  temperature: 'Temperatura',
   // correlacionx: 'Correlacion en X',
   // correlaciony: 'Correlacion en Y',
   // correlacionz: 'Correlacion en Z',
@@ -104,10 +104,12 @@ export default function GraphicsPage() {
 
     nodesNames.forEach(name => {
       const nodeData = d?.find(item => item.name === name);
-      const formatedData = nodeData?.data?.map((item, index) => ({
-        x: index / 10000,
+      const reducedData = nodeData?.data?.slice(0, 3000);
+      const formatedData = reducedData?.map((item, index) => ({
+        x: index / reducedData?.length,
         y: Number(item[`${graphOpt}`]),
       }));
+
       nodesData.push({
         type: 'line',
         dataPoints: formatedData,
