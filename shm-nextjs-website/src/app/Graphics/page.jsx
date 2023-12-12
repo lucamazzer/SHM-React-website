@@ -104,9 +104,9 @@ export default function GraphicsPage() {
 
     nodesNames.forEach(name => {
       const nodeData = d?.find(item => item.name === name);
-      const reducedData = nodeData?.data?.slice(0, 3000);
+      const reducedData = nodeData?.data?.slice(0, 30000);
       const formatedData = reducedData?.map((item, index) => ({
-        x: index / reducedData?.length,
+        x: index / 30000,
         y: Number(item[`${graphOpt}`]),
       }));
 
