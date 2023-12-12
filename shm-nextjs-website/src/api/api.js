@@ -2,7 +2,7 @@ import axios from 'axios';
 export const DEFAULT_RETRIES = 2;
 export const CONFIG_TIMEOUT = 0;
 export const HOST_NAME = process.env.NEXT_PUBLIC_HOST_NAME
-export const API_URL = `http://${HOST_NAME}/api/`;
+export const API_URL = `${HOST_NAME}/api/`;
 
 const apiConfig = {
   baseURL: API_URL,

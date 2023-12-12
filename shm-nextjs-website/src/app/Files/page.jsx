@@ -17,7 +17,7 @@ export default function FilesPage() {
 
       <iframe
         className="flex flex-col flex-1 mt-10"
-        src={`http://${HOST_NAME}/files`}
+        src={`${HOST_NAME}/files`}
         title="Archivos de mediciones"
       />
     </div>
